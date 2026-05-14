@@ -1,0 +1,1297 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<title>GeoATM Optimizer — Защита проекта</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg-0: #07101e;
+    --bg-1: #0b1828;
+    --bg-2: #11223a;
+    --bg-3: #16304f;
+    --line: #1d3a5e;
+    --line-2: #25496e;
+    --ink-0: #f4f8ff;
+    --ink-1: #cfdcee;
+    --ink-2: #8ea2bf;
+    --ink-3: #5d738f;
+    --teal: #2ad4c4;
+    --teal-dim: #1aa495;
+    --amber: #ffb454;
+    --red: #ff6a5a;
+    --green: #58d68d;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: #000; font-family: 'Inter', sans-serif; }
+
+  deck-stage section {
+    background:
+      radial-gradient(ellipse 80% 50% at 50% -10%, rgba(42,212,196,0.06), transparent 60%),
+      var(--bg-0);
+    color: var(--ink-0);
+    padding: 60px 80px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  /* ─── Subtle hex background pattern for all slides ─── */
+  .hex-bg {
+    position: absolute; inset: 0;
+    pointer-events: none;
+    opacity: 0.45;
+    background-image:
+      linear-gradient(rgba(255,255,255,0.015) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,0.015) 1px, transparent 1px);
+    background-size: 80px 80px;
+    mask-image: radial-gradient(ellipse at center, black 30%, transparent 80%);
+  }
+
+  /* ─── Slide chrome ─── */
+  .slide-head {
+    display: flex; align-items: center;
+    gap: 20px;
+    position: relative;
+    z-index: 2;
+  }
+  .slide-num {
+    font-family: 'JetBrains Mono', monospace;
+    color: var(--ink-3);
+    font-size: 16px;
+    letter-spacing: 0.1em;
+  }
+  .slide-eyebrow {
+    font-family: 'JetBrains Mono', monospace;
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+    color: var(--teal);
+    font-size: 14px;
+    font-weight: 500;
+  }
+  .slide-divider {
+    width: 60px; height: 1px;
+    background: var(--line-2);
+  }
+
+  .h1 {
+    font-family: 'Manrope', sans-serif;
+    font-weight: 800;
+    font-size: 84px;
+    line-height: 1.08;
+    letter-spacing: -0.035em;
+    margin: 0;
+  }
+  .h2 {
+    font-family: 'Manrope', sans-serif;
+    font-weight: 700;
+    font-size: 64px;
+    line-height: 1.05;
+    letter-spacing: -0.025em;
+    margin: 0;
+  }
+  .h3 {
+    font-family: 'Manrope', sans-serif;
+    font-weight: 600;
+    font-size: 28px;
+    letter-spacing: -0.015em;
+    margin: 0;
+  }
+  .lead {
+    font-size: 22px;
+    line-height: 1.45;
+    color: var(--ink-1);
+    max-width: 1100px;
+  }
+  .mono { font-family: 'JetBrains Mono', monospace; }
+  .teal { color: var(--teal); }
+  .amber { color: var(--amber); }
+  .red { color: var(--red); }
+  .ink-2 { color: var(--ink-2); }
+  .ink-3 { color: var(--ink-3); }
+
+  .footer-mark {
+    position: absolute;
+    bottom: 28px; left: 80px;
+    display: flex; align-items: center; gap: 10px;
+    color: var(--ink-3);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    z-index: 2;
+  }
+  .footer-page {
+    position: absolute;
+    bottom: 28px; right: 80px;
+    color: var(--ink-3);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    letter-spacing: 0.05em;
+    z-index: 2;
+  }
+
+  /* ─── Specific shapes ─── */
+  .hex-mark {
+    width: 26px; height: 26px;
+  }
+  .card {
+    background: var(--bg-1);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 32px;
+  }
+  .card-elevated {
+    background: linear-gradient(180deg, var(--bg-1), var(--bg-0));
+    border: 1px solid var(--line);
+    border-radius: 14px;
+  }
+  .pill {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 6px 14px;
+    border-radius: 100px;
+    border: 1px solid var(--teal-dim);
+    background: rgba(42,212,196,0.1);
+    color: var(--teal);
+    font-size: 14px;
+    font-weight: 600;
+  }
+  .pill .dot { width: 7px; height: 7px; background: var(--teal); border-radius: 100px; box-shadow: 0 0 8px var(--teal); }
+
+  /* ─── Title slide hex art ─── */
+  .title-art {
+    position: absolute;
+    right: -80px; top: 50%; transform: translateY(-50%);
+    width: 720px; height: 720px;
+    opacity: 0.95;
+  }
+
+  /* ─── Numbered list ─── */
+  .step {
+    display: flex; gap: 22px;
+    align-items: flex-start;
+    padding: 24px 0;
+    border-top: 1px solid var(--line);
+  }
+  .step-num {
+    flex-shrink: 0;
+    width: 56px; height: 56px;
+    border: 1px solid var(--line-2);
+    border-radius: 6px;
+    display: grid; place-items: center;
+    font-family: 'JetBrains Mono', monospace;
+    color: var(--teal);
+    font-size: 22px;
+    font-weight: 600;
+  }
+  .step-title {
+    font-family: 'Manrope', sans-serif;
+    font-size: 24px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    margin: 0 0 6px;
+  }
+  .step-body { color: var(--ink-2); font-size: 16px; line-height: 1.55; max-width: 920px; }
+
+  /* ─── KPI cards ─── */
+  .kpi-card {
+    background: var(--bg-1);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 28px 30px;
+    position: relative;
+    overflow: hidden;
+  }
+  .kpi-card .kpi-l { font-size: 13px; text-transform: uppercase; letter-spacing: 0.12em; color: var(--ink-3); font-weight: 600; }
+  .kpi-card .kpi-v {
+    font-family: 'Manrope', sans-serif;
+    font-size: 72px; font-weight: 800; letter-spacing: -0.035em;
+    line-height: 1.0;
+    margin: 12px 0 14px;
+  }
+  .kpi-card .kpi-d { font-family: 'JetBrains Mono', monospace; color: var(--ink-2); font-size: 14px; }
+</style>
+</head>
+<body>
+
+<deck-stage>
+
+<!-- ════════════════════════════════════════════════════════════════
+     SLIDE 1 — TITLE
+════════════════════════════════════════════════════════════════ -->
+<section data-screen-label="01 Титул">
+  <div class="hex-bg"></div>
+
+  <!-- Decorative hex cluster -->
+  <svg class="title-art" viewBox="0 0 720 720">
+    <defs>
+      <radialGradient id="t-glow" cx="50%" cy="50%" r="50%">
+        <stop offset="0%" stop-color="#2ad4c4" stop-opacity="0.45"/>
+        <stop offset="100%" stop-color="#2ad4c4" stop-opacity="0"/>
+      </radialGradient>
+      <linearGradient id="t-fade" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0%" stop-color="rgba(42,212,196,0.25)"/>
+        <stop offset="100%" stop-color="rgba(42,212,196,0.02)"/>
+      </linearGradient>
+    </defs>
+    <circle cx="360" cy="360" r="320" fill="url(#t-glow)"/>
+    <!-- generated hex cluster -->
+    <g id="hex-cluster"></g>
+  </svg>
+
+  <div style="position: relative; z-index: 2; display: flex; flex-direction: column; justify-content: space-between; height: 100%;">
+
+    <div class="slide-head">
+      <div style="display: flex; align-items: center; gap: 12px;">
+        <svg class="hex-mark" viewBox="0 0 24 24">
+          <path d="M12 2 L21 7 V17 L12 22 L3 17 V7 Z" fill="rgba(42,212,196,0.18)" stroke="#2ad4c4" stroke-width="1.6" stroke-linejoin="round"/>
+          <circle cx="12" cy="12" r="2.4" fill="#2ad4c4"/>
+        </svg>
+        <span style="font-family: Manrope, sans-serif; font-weight: 700; font-size: 18px; letter-spacing: 0.02em;">GeoATM Optimizer</span>
+      </div>
+      <div class="slide-divider"></div>
+      <span class="slide-eyebrow">Защита проекта · ВШ · 2026</span>
+    </div>
+
+    <div style="max-width: 1100px;">
+      <div class="pill" style="margin-bottom: 32px;"><span class="dot"></span> Геопространственная аналитика · ML-скоринг</div>
+      <h1 class="h1">Где открыть<br/>следующий&nbsp;банкомат?</h1>
+      <p class="lead" style="font-size: 26px; margin-top: 32px; max-width: 900px;">
+        Аналитический инструмент Департамента развития инфраструктуры:<br/>
+        от экспертного отбора к&nbsp;<span class="teal">data-driven</span> решениям на основе ML‑модели и&nbsp;геосетки&nbsp;H3.
+      </p>
+    </div>
+
+    <div style="display: flex; gap: 60px; color: var(--ink-2); font-size: 15px;">
+      <div>
+        <div class="mono" style="color: var(--ink-3); text-transform: uppercase; letter-spacing: 0.12em; font-size: 12px; margin-bottom: 4px;">Команда</div>
+        <div>Андрей Климов · Мария Петрова · Иван Соколов</div>
+      </div>
+      <div>
+        <div class="mono" style="color: var(--ink-3); text-transform: uppercase; letter-spacing: 0.12em; font-size: 12px; margin-bottom: 4px;">Заказчик</div>
+        <div>Департамент развития инфраструктуры ВТБ</div>
+      </div>
+      <div>
+        <div class="mono" style="color: var(--ink-3); text-transform: uppercase; letter-spacing: 0.12em; font-size: 12px; margin-bottom: 4px;">Регион</div>
+        <div>Москва · H3 res 9 · 462 ячейки</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer-page mono">01 / 12</div>
+</section>
+
+
+<!-- ════════════════════════════════════════════════════════════════
+     SLIDE 2 — ПРОБЛЕМА
+════════════════════════════════════════════════════════════════ -->
+<section data-screen-label="02 Проблема">
+  <div class="hex-bg"></div>
+  <div style="position: relative; z-index: 2; display: flex; flex-direction: column; gap: 48px;">
+
+    <div class="slide-head">
+      <span class="slide-num">02</span>
+      <div class="slide-divider"></div>
+      <span class="slide-eyebrow">Проблема</span>
+    </div>
+
+    <h2 class="h2" style="max-width: 1200px;">
+      Сегодня локации для банкоматов <br/>
+      выбирают «<span class="amber">на глаз</span>».
+    </h2>
+
+    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 28px; margin-top: 24px;">
+      <div class="card">
+        <div class="mono teal" style="font-size: 14px; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 14px;">⏱ медленно</div>
+        <div class="h3" style="margin-bottom: 12px;">Дни на одну&nbsp;локацию</div>
+        <p style="color: var(--ink-2); font-size: 16px; line-height: 1.55;">
+          Аналитик вручную сводит данные из 4–6&nbsp;источников: транзакции, POI, конкуренты, демография. Любое уточнение — заново.
+        </p>
+      </div>
+      <div class="card">
+        <div class="mono amber" style="font-size: 14px; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 14px;">⚖ субъективно</div>
+        <div class="h3" style="margin-bottom: 12px;">Решение зависит<br/>от&nbsp;эксперта</div>
+        <p style="color: var(--ink-2); font-size: 16px; line-height: 1.55;">
+          Два менеджера, глядя на одни и те же данные, выбирают разные точки. Решения слабо повторяемы и плохо аудируются.
+        </p>
+      </div>
+      <div class="card">
+        <div class="mono red" style="font-size: 14px; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 14px;">💸 дорого</div>
+        <div class="h3" style="margin-bottom: 12px;">«Слепые» зоны<br/>съедают&nbsp;OPEX</div>
+        <p style="color: var(--ink-2); font-size: 16px; line-height: 1.55;">
+          Банкомат в неудачной точке — это аренда, инкассация, сервис без отдачи. Демонтаж и&nbsp;перенос — отдельные затраты.
+        </p>
+      </div>
+    </div>
+
+    <div style="display: flex; gap: 64px; padding: 28px 0; border-top: 1px solid var(--line); margin-top: 16px;">
+      <div>
+        <div class="mono ink-3" style="font-size: 12px; letter-spacing: 0.12em; text-transform: uppercase;">Текущий цикл</div>
+        <div style="font-family: Manrope; font-size: 42px; font-weight: 700; letter-spacing: -0.02em; margin-top: 6px;">3–5 <span class="ink-2" style="font-size: 22px; font-weight: 400;">дней / точка</span></div>
+      </div>
+      <div>
+        <div class="mono ink-3" style="font-size: 12px; letter-spacing: 0.12em; text-transform: uppercase;">Доля «провальных» установок</div>
+        <div style="font-family: Manrope; font-size: 42px; font-weight: 700; letter-spacing: -0.02em; margin-top: 6px;" class="amber">~22%</div>
+      </div>
+      <div>
+        <div class="mono ink-3" style="font-size: 12px; letter-spacing: 0.12em; text-transform: uppercase;">Сеть в Москве</div>
+        <div style="font-family: Manrope; font-size: 42px; font-weight: 700; letter-spacing: -0.02em; margin-top: 6px;">~4 800 <span class="ink-2" style="font-size: 22px; font-weight: 400;">банкоматов</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer-mark mono">GeoATM Optimizer · защита</div>
+  <div class="footer-page mono">02 / 12</div>
+</section>
+
+
+<!-- ════════════════════════════════════════════════════════════════
+     SLIDE 3 — РЕШЕНИЕ
+════════════════════════════════════════════════════════════════ -->
+<section data-screen-label="03 Решение">
+  <div class="hex-bg"></div>
+  <div style="position: relative; z-index: 2; display: flex; flex-direction: column; gap: 40px; height: 100%;">
+
+    <div class="slide-head">
+      <span class="slide-num">03</span>
+      <div class="slide-divider"></div>
+      <span class="slide-eyebrow">Наше решение</span>
+    </div>
+
+    <h2 class="h2" style="max-width: 1400px;">
+      Карта города как&nbsp;<span class="teal">единый язык</span>.<br/>
+      Каждая ячейка — оценённая ML&#8209;моделью.
+    </h2>
+
+    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 24px; margin-top: 16px;">
+      <div class="card-elevated" style="padding: 32px;">
+        <svg width="56" height="56" viewBox="0 0 24 24" style="margin-bottom: 18px;">
+          <path d="M12 2 L21 7 V17 L12 22 L3 17 V7 Z" fill="rgba(42,212,196,0.15)" stroke="#2ad4c4" stroke-width="1.4" stroke-linejoin="round"/>
+          <path d="M12 7 L17 9.5 V14.5 L12 17 L7 14.5 V9.5 Z" fill="none" stroke="#2ad4c4" stroke-width="1" stroke-linejoin="round" opacity="0.5"/>
+        </svg>
+        <div class="h3" style="margin-bottom: 10px;">H3 Grid</div>
+        <p class="ink-2" style="font-size: 16px; line-height: 1.55;">
+          Город разбивается на гексы res 9 (≈ 0.1 км²). Любые данные — клиенты, ТЦ, метро, конкуренты — привязываются к&nbsp;h3_index.
+        </p>
+      </div>
+      <div class="card-elevated" style="padding: 32px;">
+        <svg width="56" height="56" viewBox="0 0 24 24" style="margin-bottom: 18px;" fill="none" stroke="#2ad4c4" stroke-width="1.5">
+          <rect x="3" y="3" width="6" height="6" rx="1"/>
+          <rect x="15" y="3" width="6" height="6" rx="1"/>
+          <rect x="9" y="15" width="6" height="6" rx="1"/>
+          <path d="M6 9 V12 H18 V9"/>
+          <path d="M12 12 V15"/>
+        </svg>
+        <div class="h3" style="margin-bottom: 10px;">Gradient Boosting</div>
+        <p class="ink-2" style="font-size: 16px; line-height: 1.55;">
+          CatBoost ранжирует ячейки по&nbsp;вероятности успешного банкомата. Целевая&nbsp;— фактическая транзакционная активность.
+        </p>
+      </div>
+      <div class="card-elevated" style="padding: 32px;">
+        <svg width="56" height="56" viewBox="0 0 24 24" style="margin-bottom: 18px;" fill="none" stroke="#2ad4c4" stroke-width="1.5">
+          <rect x="3" y="4" width="18" height="14" rx="1.5"/>
+          <line x1="3" y1="9" x2="21" y2="9"/>
+          <rect x="6" y="12" width="4" height="3" fill="#2ad4c4" opacity="0.4"/>
+          <rect x="11" y="12" width="4" height="3" fill="#2ad4c4" opacity="0.7"/>
+          <rect x="16" y="12" width="2" height="3" fill="#2ad4c4"/>
+        </svg>
+        <div class="h3" style="margin-bottom: 10px;">Интерактивный дашборд</div>
+        <p class="ink-2" style="font-size: 16px; line-height: 1.55;">
+          Менеджер фильтрует, ранжирует, открывает любую ячейку и видит факторы решения. Никаких выгрузок в Excel.
+        </p>
+      </div>
+    </div>
+
+    <div style="margin-top: auto; padding: 28px 32px; background: linear-gradient(90deg, rgba(42,212,196,0.10), rgba(42,212,196,0.0)); border-left: 3px solid var(--teal); border-radius: 4px;">
+      <div class="mono teal" style="font-size: 13px; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 6px;">Бизнес-обещание</div>
+      <div style="font-family: Manrope, sans-serif; font-size: 26px; font-weight: 600; letter-spacing: -0.015em;">
+        Time-to-decision: с нескольких дней — до&nbsp;<span class="teal">15 минут</span> на локацию.
+      </div>
+    </div>
+  </div>
+
+  <div class="footer-mark mono">GeoATM Optimizer · защита</div>
+  <div class="footer-page mono">03 / 12</div>
+</section>
+
+
+<!-- ════════════════════════════════════════════════════════════════
+     SLIDE 4 — АРХИТЕКТУРА
+════════════════════════════════════════════════════════════════ -->
+<section data-screen-label="04 Архитектура">
+  <div class="hex-bg"></div>
+  <div style="position: relative; z-index: 2; display: flex; flex-direction: column; gap: 36px; height: 100%;">
+
+    <div class="slide-head">
+      <span class="slide-num">04</span>
+      <div class="slide-divider"></div>
+      <span class="slide-eyebrow">Архитектура</span>
+    </div>
+
+    <h2 class="h2">Три слоя, один контракт&nbsp;— h3_index.</h2>
+
+    <div style="display: grid; grid-template-rows: 1fr 1fr 1fr; gap: 16px; margin-top: 8px; flex: 1;">
+
+      <!-- Data layer -->
+      <div style="display: grid; grid-template-columns: 180px 1fr; gap: 20px; align-items: stretch;">
+        <div style="background: var(--bg-1); border: 1px solid var(--line); border-radius: 12px; padding: 18px 20px; display: flex; flex-direction: column; justify-content: center;">
+          <div class="mono teal" style="font-size: 12px; letter-spacing: 0.12em; text-transform: uppercase;">Layer 1</div>
+          <div style="font-family: Manrope; font-size: 22px; font-weight: 700; margin-top: 4px;">Data Pipeline</div>
+          <div class="ink-3 mono" style="font-size: 12px; margin-top: 4px;">Airflow · ClickHouse</div>
+        </div>
+        <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px;">
+          <div class="card" style="padding: 16px 18px;">
+            <div class="mono ink-3" style="font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 4px;">внутренние</div>
+            <div style="font-size: 17px; font-weight: 600; font-family: Manrope;">Транзакции ВТБ</div>
+            <div class="ink-2" style="font-size: 13px; margin-top: 2px;">count · sum · uniq · mcc</div>
+          </div>
+          <div class="card" style="padding: 16px 18px;">
+            <div class="mono ink-3" style="font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 4px;">внешние · POI</div>
+            <div style="font-size: 17px; font-weight: 600; font-family: Manrope;">OSM / 2GIS</div>
+            <div class="ink-2" style="font-size: 13px; margin-top: 2px;">ТЦ · БЦ · ВУЗы</div>
+          </div>
+          <div class="card" style="padding: 16px 18px;">
+            <div class="mono ink-3" style="font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 4px;">внешние · gov</div>
+            <div style="font-size: 17px; font-weight: 600; font-family: Manrope;">Демография</div>
+            <div class="ink-2" style="font-size: 13px; margin-top: 2px;">плотность населения</div>
+          </div>
+          <div class="card" style="padding: 16px 18px;">
+            <div class="mono ink-3" style="font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 4px;">конкуренты</div>
+            <div style="font-size: 17px; font-weight: 600; font-family: Manrope;">Сеть ATM</div>
+            <div class="ink-2" style="font-size: 13px; margin-top: 2px;">Сбер · Альфа · Т‑Банк</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Arrow row -->
+      <div style="display: grid; grid-template-columns: 180px 1fr; gap: 20px; align-items: stretch;">
+        <div style="background: linear-gradient(180deg, rgba(42,212,196,0.18), rgba(42,212,196,0.04)); border: 1px solid var(--teal-dim); border-radius: 12px; padding: 18px 20px; display: flex; flex-direction: column; justify-content: center;">
+          <div class="mono teal" style="font-size: 12px; letter-spacing: 0.12em; text-transform: uppercase;">Layer 2</div>
+          <div style="font-family: Manrope; font-size: 22px; font-weight: 700; margin-top: 4px;">ML‑модель</div>
+          <div class="ink-2 mono" style="font-size: 12px; margin-top: 4px;">CatBoost · бин. классификация</div>
+        </div>
+        <div style="background: var(--bg-1); border: 1px solid var(--line); border-radius: 12px; padding: 18px 22px; display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 24px; align-items: center;">
+          <div>
+            <div class="mono ink-3" style="font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase;">target</div>
+            <div style="font-size: 16px; margin-top: 2px;">Успешная транзакционная активность (1/0)</div>
+          </div>
+          <div>
+            <div class="mono ink-3" style="font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase;">~ 50 features</div>
+            <div style="font-size: 16px; margin-top: 2px;">Транзакции, POI, демография, конкуренция, MCC</div>
+          </div>
+          <div>
+            <div class="mono ink-3" style="font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase;">output</div>
+            <div style="font-size: 16px; margin-top: 2px;">Score ∈ [0, 1] для каждого h3_index</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- UI layer -->
+      <div style="display: grid; grid-template-columns: 180px 1fr; gap: 20px; align-items: stretch;">
+        <div style="background: var(--bg-1); border: 1px solid var(--line); border-radius: 12px; padding: 18px 20px; display: flex; flex-direction: column; justify-content: center;">
+          <div class="mono teal" style="font-size: 12px; letter-spacing: 0.12em; text-transform: uppercase;">Layer 3</div>
+          <div style="font-family: Manrope; font-size: 22px; font-weight: 700; margin-top: 4px;">SPA‑дашборд</div>
+          <div class="ink-3 mono" style="font-size: 12px; margin-top: 4px;">React · MapLibre</div>
+        </div>
+        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px;">
+          <div class="card" style="padding: 16px 18px;">
+            <div style="font-size: 17px; font-weight: 600; font-family: Manrope;">Интерактивная карта</div>
+            <div class="ink-2" style="font-size: 13px; margin-top: 2px;">тепловая карта Score · слои POI</div>
+          </div>
+          <div class="card" style="padding: 16px 18px;">
+            <div style="font-size: 17px; font-weight: 600; font-family: Manrope;">Панель фильтров</div>
+            <div class="ink-2" style="font-size: 13px; margin-top: 2px;">по Score · POI · конкурентам</div>
+          </div>
+          <div class="card" style="padding: 16px 18px;">
+            <div style="font-size: 17px; font-weight: 600; font-family: Manrope;">Карточка локации</div>
+            <div class="ink-2" style="font-size: 13px; margin-top: 2px;">прогноз · SHAP‑факторы · действия</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer-mark mono">GeoATM Optimizer · защита</div>
+  <div class="footer-page mono">04 / 12</div>
+</section>
+
+
+<!-- ════════════════════════════════════════════════════════════════
+     SLIDE 5 — H3 объяснение
+════════════════════════════════════════════════════════════════ -->
+<section data-screen-label="05 H3">
+  <div class="hex-bg"></div>
+  <div style="position: relative; z-index: 2; display: grid; grid-template-columns: 1fr 1fr; gap: 64px; height: 100%; align-items: stretch;">
+
+    <div style="display: flex; flex-direction: column; gap: 32px;">
+      <div class="slide-head">
+        <span class="slide-num">05</span>
+        <div class="slide-divider"></div>
+        <span class="slide-eyebrow">H3 Geo Grid</span>
+      </div>
+
+      <h2 class="h2">Почему гексы,<br/>а не квадраты?</h2>
+
+      <div style="display: grid; gap: 16px;">
+        <div style="display: flex; gap: 16px; align-items: flex-start;">
+          <div style="width: 8px; height: 8px; background: var(--teal); border-radius: 100px; margin-top: 10px; flex-shrink: 0;"></div>
+          <div>
+            <div style="font-size: 19px; font-weight: 600; font-family: Manrope;">Равные соседи</div>
+            <div class="ink-2" style="font-size: 15px; line-height: 1.5;">У гекса 6 соседей на одинаковом расстоянии — корректный расчёт радиуса конкуренции и каннибализации.</div>
+          </div>
+        </div>
+        <div style="display: flex; gap: 16px; align-items: flex-start;">
+          <div style="width: 8px; height: 8px; background: var(--teal); border-radius: 100px; margin-top: 10px; flex-shrink: 0;"></div>
+          <div>
+            <div style="font-size: 19px; font-weight: 600; font-family: Manrope;">Иерархия разрешений</div>
+            <div class="ink-2" style="font-size: 15px; line-height: 1.5;">H3 res 9 ≈ 0.1 км². Можно агрегировать в res 8 / 7 для общегородских отчётов без потери семантики.</div>
+          </div>
+        </div>
+        <div style="display: flex; gap: 16px; align-items: flex-start;">
+          <div style="width: 8px; height: 8px; background: var(--teal); border-radius: 100px; margin-top: 10px; flex-shrink: 0;"></div>
+          <div>
+            <div style="font-size: 19px; font-weight: 600; font-family: Manrope;">Открытый стандарт Uber</div>
+            <div class="ink-2" style="font-size: 15px; line-height: 1.5;">Реализация на Python/SQL. Не требует лицензий, легко интегрируется с ClickHouse и Greenplum.</div>
+          </div>
+        </div>
+      </div>
+
+      <div style="margin-top: auto; display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px;">
+        <div style="padding: 14px 16px; background: var(--bg-1); border: 1px solid var(--line); border-radius: 8px;">
+          <div class="mono ink-3" style="font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase;">Площадь</div>
+          <div style="font-family: Manrope; font-size: 22px; font-weight: 700; margin-top: 2px;">0.105 <span class="ink-2" style="font-size: 14px; font-weight: 400;">км²</span></div>
+        </div>
+        <div style="padding: 14px 16px; background: var(--bg-1); border: 1px solid var(--line); border-radius: 8px;">
+          <div class="mono ink-3" style="font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase;">Ребро</div>
+          <div style="font-family: Manrope; font-size: 22px; font-weight: 700; margin-top: 2px;">174 <span class="ink-2" style="font-size: 14px; font-weight: 400;">м</span></div>
+        </div>
+        <div style="padding: 14px 16px; background: var(--bg-1); border: 1px solid var(--line); border-radius: 8px;">
+          <div class="mono ink-3" style="font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase;">Ячеек в МКАД</div>
+          <div style="font-family: Manrope; font-size: 22px; font-weight: 700; margin-top: 2px;">~ 9 600</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right side: hex visual -->
+    <div style="position: relative; display: grid; place-items: center;">
+      <svg viewBox="0 0 600 600" width="100%" style="max-width: 600px;">
+        <defs>
+          <radialGradient id="hex-glow" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stop-color="#2ad4c4" stop-opacity="0.25"/>
+            <stop offset="100%" stop-color="#2ad4c4" stop-opacity="0"/>
+          </radialGradient>
+        </defs>
+        <circle cx="300" cy="300" r="280" fill="url(#hex-glow)"/>
+        <!-- Central hex highlighted -->
+        <g id="hex-explainer"></g>
+      </svg>
+    </div>
+
+  </div>
+
+  <div class="footer-mark mono">GeoATM Optimizer · защита</div>
+  <div class="footer-page mono">05 / 12</div>
+</section>
+
+
+<!-- ════════════════════════════════════════════════════════════════
+     SLIDE 6 — Прототип: ГЛАВНЫЙ ЭКРАН (embed)
+════════════════════════════════════════════════════════════════ -->
+<section data-screen-label="06 Прототип: главный экран">
+  <div style="position: relative; z-index: 2; height: 100%; display: flex; flex-direction: column; gap: 28px;">
+
+    <div class="slide-head">
+      <span class="slide-num">06</span>
+      <div class="slide-divider"></div>
+      <span class="slide-eyebrow">Прототип · главный экран</span>
+    </div>
+
+    <div style="display: grid; grid-template-columns: 1fr 1.6fr; gap: 56px; align-items: start; flex: 1; min-height: 0;">
+
+      <div style="display: flex; flex-direction: column; gap: 28px;">
+        <h2 class="h2" style="font-size: 56px;">Москва глазами<br/>модели.</h2>
+        <p class="lead" style="font-size: 18px;">
+          Каждый гекс — это потенциал ячейки. Холодный — слабый, тёплый — кандидат на установку.
+        </p>
+
+        <div style="display: grid; gap: 14px;">
+          <div style="display: flex; gap: 14px; align-items: flex-start;">
+            <span class="mono teal" style="font-size: 14px; width: 24px;">①</span>
+            <div>
+              <div style="font-weight: 600; font-family: Manrope; font-size: 17px;">Фильтры слева</div>
+              <div class="ink-2" style="font-size: 14px;">Score · POI · правила отбора</div>
+            </div>
+          </div>
+          <div style="display: flex; gap: 14px; align-items: flex-start;">
+            <span class="mono teal" style="font-size: 14px; width: 24px;">②</span>
+            <div>
+              <div style="font-weight: 600; font-family: Manrope; font-size: 17px;">Карта в центре</div>
+              <div class="ink-2" style="font-size: 14px;">Тепловая H3‑сетка + слои POI и ATM</div>
+            </div>
+          </div>
+          <div style="display: flex; gap: 14px; align-items: flex-start;">
+            <span class="mono teal" style="font-size: 14px; width: 24px;">③</span>
+            <div>
+              <div style="font-weight: 600; font-family: Manrope; font-size: 17px;">Карточка справа</div>
+              <div class="ink-2" style="font-size: 14px;">Прогноз и факторы выбранной ячейки</div>
+            </div>
+          </div>
+        </div>
+
+        <div style="margin-top: auto; padding: 18px 20px; background: rgba(42,212,196,0.08); border: 1px solid var(--teal-dim); border-radius: 8px;">
+          <div class="mono teal" style="font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 4px;">кейс</div>
+          <div style="font-size: 16px; line-height: 1.45;">Score ≥ 80, скрыты зоны с банкоматами ВТБ → <span class="teal">шорт‑лист топ&#8209;20</span> по Москве за 2 секунды.</div>
+        </div>
+      </div>
+
+      <!-- Mock dashboard preview -->
+      <div style="position: relative; border: 1px solid var(--line); border-radius: 10px; overflow: hidden; background: var(--bg-1); box-shadow: 0 20px 60px rgba(0,0,0,0.5);">
+        <img src="assets/prototype-map.png" style="width: 100%; display: block;"/>
+        <div style="position: absolute; left: 16px; top: 14px; background: rgba(7,16,30,0.8); backdrop-filter: blur(6px); border: 1px solid var(--line); border-radius: 4px; padding: 4px 10px; font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--ink-2);">снимок прототипа · live в&nbsp;браузере</div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="footer-mark mono">GeoATM Optimizer · защита</div>
+  <div class="footer-page mono">06 / 12</div>
+</section>
+
+
+<!-- ════════════════════════════════════════════════════════════════
+     SLIDE 7 — Прототип: КАРТОЧКА ЛОКАЦИИ
+════════════════════════════════════════════════════════════════ -->
+<section data-screen-label="07 Прототип: карточка">
+  <div class="hex-bg"></div>
+  <div style="position: relative; z-index: 2; height: 100%; display: flex; flex-direction: column; gap: 28px;">
+
+    <div class="slide-head">
+      <span class="slide-num">07</span>
+      <div class="slide-divider"></div>
+      <span class="slide-eyebrow">Прототип · карточка локации</span>
+    </div>
+
+    <h2 class="h2" style="font-size: 56px;">Почему именно <span class="teal">эта</span> ячейка?</h2>
+
+    <div style="display: grid; grid-template-columns: 1.3fr 1fr; gap: 56px; flex: 1; min-height: 0;">
+
+      <!-- Visual mock -->
+      <div style="background: var(--bg-1); border: 1px solid var(--line); border-radius: 10px; overflow: hidden; box-shadow: 0 12px 40px rgba(0,0,0,0.4); display: flex; flex-direction: column;">
+        <div style="padding: 10px 14px; border-bottom: 1px solid var(--line); display: flex; align-items: center; gap: 10px; font-size: 11px; color: var(--ink-3); text-transform: uppercase; letter-spacing: 0.08em;">
+          <span>Карточка локации</span>
+        </div>
+        <div style="padding: 18px 20px; display: flex; align-items: flex-end; gap: 16px;">
+          <div>
+            <div class="mono ink-3" style="font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em;">ML-Score</div>
+            <div style="font-family: Manrope; font-size: 72px; font-weight: 800; letter-spacing: -0.04em; line-height: 0.9; color: #f0b246;">89<span style="font-size: 26px; color: var(--ink-2);">/100</span></div>
+          </div>
+          <div style="margin-left: auto; padding: 4px 12px; background: rgba(42,212,196,0.14); color: var(--teal); border: 1px solid var(--teal-dim); border-radius: 100px; font-family: 'JetBrains Mono', monospace; font-size: 13px;">#3 из 462</div>
+        </div>
+        <div style="padding: 0 20px 16px;">
+          <span style="padding: 4px 12px; background: rgba(88,214,141,0.14); color: var(--green); border-radius: 100px; font-size: 13px; font-weight: 600;">● Рекомендовано к установке</span>
+        </div>
+        <div style="padding: 10px 20px; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); font-family: 'JetBrains Mono', monospace; font-size: 14px; color: var(--ink-1); display: flex; gap: 10px;">
+          <span class="ink-3" style="font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em;">h3</span>
+          <span>89a2f12b4f3a01</span>
+        </div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1px; background: var(--line);">
+          <div style="background: var(--bg-1); padding: 14px 20px;">
+            <div class="mono ink-3" style="font-size: 11px; text-transform: uppercase;">Транзакций/мес</div>
+            <div style="font-family: Manrope; font-size: 26px; font-weight: 700;">15.6 тыс</div>
+          </div>
+          <div style="background: var(--bg-1); padding: 14px 20px;">
+            <div class="mono ink-3" style="font-size: 11px; text-transform: uppercase;">Оборот</div>
+            <div style="font-family: Manrope; font-size: 26px; font-weight: 700;">62.4 млн ₽</div>
+          </div>
+          <div style="background: var(--bg-1); padding: 14px 20px;">
+            <div class="mono ink-3" style="font-size: 11px; text-transform: uppercase;">Уник. клиенты</div>
+            <div style="font-family: Manrope; font-size: 26px; font-weight: 700;">3.1 тыс</div>
+          </div>
+          <div style="background: var(--bg-1); padding: 14px 20px;">
+            <div class="mono ink-3" style="font-size: 11px; text-transform: uppercase;">Плотность</div>
+            <div style="font-family: Manrope; font-size: 26px; font-weight: 700;">8.4к /км²</div>
+          </div>
+        </div>
+        <div style="padding: 16px 20px; flex: 1;">
+          <div class="mono ink-3" style="font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 10px;">Ключевые факторы · SHAP</div>
+          <div style="display: grid; gap: 10px;">
+            <div>
+              <div style="display: flex; justify-content: space-between; font-size: 14px;"><span><span class="teal mono">+</span> Пешеходный трафик у метро</span><span class="mono ink-2">+0.22</span></div>
+              <div style="height: 5px; background: var(--bg-2); border-radius: 100px; margin-top: 3px;"><div style="height: 100%; width: 88%; background: var(--teal); opacity: 0.8; border-radius: 100px;"></div></div>
+            </div>
+            <div>
+              <div style="display: flex; justify-content: space-between; font-size: 14px;"><span><span class="teal mono">+</span> Концентрация ТЦ и ритейла</span><span class="mono ink-2">+0.18</span></div>
+              <div style="height: 5px; background: var(--bg-2); border-radius: 100px; margin-top: 3px;"><div style="height: 100%; width: 72%; background: var(--teal); opacity: 0.8; border-radius: 100px;"></div></div>
+            </div>
+            <div>
+              <div style="display: flex; justify-content: space-between; font-size: 14px;"><span><span class="teal mono">+</span> Транзакционный след ВТБ</span><span class="mono ink-2">+0.14</span></div>
+              <div style="height: 5px; background: var(--bg-2); border-radius: 100px; margin-top: 3px;"><div style="height: 100%; width: 56%; background: var(--teal); opacity: 0.8; border-radius: 100px;"></div></div>
+            </div>
+            <div>
+              <div style="display: flex; justify-content: space-between; font-size: 14px;"><span><span class="red mono">−</span> Конкуренты в радиусе 300м</span><span class="mono ink-2">−0.07</span></div>
+              <div style="height: 5px; background: var(--bg-2); border-radius: 100px; margin-top: 3px;"><div style="height: 100%; width: 28%; background: var(--red); opacity: 0.8; border-radius: 100px;"></div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right column: explanation -->
+      <div style="display: flex; flex-direction: column; gap: 24px;">
+        <p style="font-size: 19px; line-height: 1.55; color: var(--ink-1);">
+          Карточка превращает «чёрный ящик» модели в&nbsp;<span class="teal">аргументируемое решение</span>. Менеджер видит не просто число — он видит, какие признаки его сформировали.
+        </p>
+
+        <div class="card" style="padding: 22px 26px;">
+          <div class="mono teal" style="font-size: 12px; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 8px;">Что внутри</div>
+          <ul style="margin: 0; padding-left: 18px; color: var(--ink-1); font-size: 16px; line-height: 1.75;">
+            <li>Score и&nbsp;rank по&nbsp;городу</li>
+            <li>Прогноз транзакций / оборота / клиентов</li>
+            <li>SHAP‑декомпозиция (топ‑6 факторов)</li>
+            <li>Карта окружения POI</li>
+            <li>Pre‑flight проверка рисков</li>
+          </ul>
+        </div>
+
+        <div style="margin-top: auto; padding: 22px 26px; border: 1px dashed var(--line-2); border-radius: 8px; color: var(--ink-2); font-size: 15px; line-height: 1.5;">
+          <span class="amber" style="font-weight: 600;">Важно:</span> финальное решение остаётся за человеком. Модель аргументирует, но не подменяет компетенцию менеджера.
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="footer-mark mono">GeoATM Optimizer · защита</div>
+  <div class="footer-page mono">07 / 12</div>
+</section>
+
+
+<!-- ════════════════════════════════════════════════════════════════
+     SLIDE 8 — Прототип: МЕТРИКИ МОДЕЛИ
+════════════════════════════════════════════════════════════════ -->
+<section data-screen-label="08 Прототип: метрики">
+  <div class="hex-bg"></div>
+  <div style="position: relative; z-index: 2; height: 100%; display: flex; flex-direction: column; gap: 28px;">
+
+    <div class="slide-head">
+      <span class="slide-num">08</span>
+      <div class="slide-divider"></div>
+      <span class="slide-eyebrow">Прототип · метрики модели</span>
+    </div>
+
+    <h2 class="h2" style="font-size: 56px;">Модель прозрачна<br/>и&nbsp;контролируема.</h2>
+
+    <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px;">
+      <div class="kpi-card">
+        <div class="kpi-l">ROC‑AUC</div>
+        <div class="kpi-v teal">0.823</div>
+        <div class="kpi-d">target ≥ 0.75 · ✓</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-l">Precision @ top‑20</div>
+        <div class="kpi-v">0.86</div>
+        <div class="kpi-d">86% попадают в KPI</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-l">Recall</div>
+        <div class="kpi-v">0.74</div>
+        <div class="kpi-d">из всех хороших зон</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-l">F1‑Score</div>
+        <div class="kpi-v">0.871</div>
+        <div class="kpi-d">баланс P/R</div>
+      </div>
+    </div>
+
+    <div style="display: grid; grid-template-columns: 1.2fr 1fr; gap: 28px; flex: 1; min-height: 0;">
+
+      <div class="card" style="padding: 24px 28px; display: flex; flex-direction: column;">
+        <div class="mono teal" style="font-size: 12px; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 10px;">ROC‑кривая · test N = 3 400</div>
+        <svg viewBox="0 0 500 280" style="flex: 1; max-height: 320px;">
+          <defs>
+            <linearGradient id="roc-fill" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#2ad4c4" stop-opacity="0.35"/>
+              <stop offset="100%" stop-color="#2ad4c4" stop-opacity="0"/>
+            </linearGradient>
+          </defs>
+          <!-- grid -->
+          <g stroke="rgba(255,255,255,0.05)">
+            <line x1="50" x2="480" y1="50" y2="50"/>
+            <line x1="50" x2="480" y1="110" y2="110"/>
+            <line x1="50" x2="480" y1="170" y2="170"/>
+            <line x1="50" x2="480" y1="230" y2="230"/>
+          </g>
+          <!-- axes -->
+          <line x1="50" y1="230" x2="480" y2="230" stroke="#25496e"/>
+          <line x1="50" y1="50"  x2="50"  y2="230" stroke="#25496e"/>
+          <!-- baseline -->
+          <line x1="50" y1="230" x2="480" y2="50" stroke="#5d738f" stroke-dasharray="4 6" stroke-width="1.2"/>
+          <!-- ROC -->
+          <path d="M 50 230 Q 80 180 130 130 T 250 75 T 380 55 L 480 50 L 480 230 Z" fill="url(#roc-fill)"/>
+          <path d="M 50 230 Q 80 180 130 130 T 250 75 T 380 55 L 480 50" fill="none" stroke="#2ad4c4" stroke-width="2.5"/>
+          <!-- labels -->
+          <text x="265" y="265" font-family="Inter" font-size="13" fill="#8ea2bf" text-anchor="middle">False Positive Rate</text>
+          <text x="20" y="140" font-family="Inter" font-size="13" fill="#8ea2bf" transform="rotate(-90, 20, 140)" text-anchor="middle">True Positive Rate</text>
+          <!-- AUC badge -->
+          <rect x="320" y="100" width="140" height="38" rx="6" fill="rgba(42,212,196,0.12)" stroke="#2ad4c4"/>
+          <text x="390" y="125" font-family="JetBrains Mono" font-size="16" fill="#2ad4c4" text-anchor="middle">AUC = 0.823</text>
+        </svg>
+      </div>
+
+      <div style="display: flex; flex-direction: column; gap: 20px;">
+        <div class="card" style="padding: 22px 26px;">
+          <div class="mono teal" style="font-size: 12px; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 14px;">Feature Importance · топ‑5</div>
+          <div style="display: grid; gap: 10px;">
+            <div>
+              <div style="display: flex; justify-content: space-between; font-size: 14px; margin-bottom: 4px;"><span>Транзакц. след ВТБ</span><span class="mono teal">0.28</span></div>
+              <div style="height: 6px; background: var(--bg-2); border-radius: 100px;"><div style="height: 100%; width: 100%; background: var(--teal); border-radius: 100px;"></div></div>
+            </div>
+            <div>
+              <div style="display: flex; justify-content: space-between; font-size: 14px; margin-bottom: 4px;"><span>Плотность населения</span><span class="mono teal">0.19</span></div>
+              <div style="height: 6px; background: var(--bg-2); border-radius: 100px;"><div style="height: 100%; width: 68%; background: var(--teal); border-radius: 100px;"></div></div>
+            </div>
+            <div>
+              <div style="display: flex; justify-content: space-between; font-size: 14px; margin-bottom: 4px;"><span>Концентрация POI</span><span class="mono teal">0.14</span></div>
+              <div style="height: 6px; background: var(--bg-2); border-radius: 100px;"><div style="height: 100%; width: 50%; background: var(--teal); border-radius: 100px;"></div></div>
+            </div>
+            <div>
+              <div style="display: flex; justify-content: space-between; font-size: 14px; margin-bottom: 4px;"><span>Метро / ТПУ</span><span class="mono teal">0.12</span></div>
+              <div style="height: 6px; background: var(--bg-2); border-radius: 100px;"><div style="height: 100%; width: 43%; background: var(--teal); border-radius: 100px;"></div></div>
+            </div>
+            <div>
+              <div style="display: flex; justify-content: space-between; font-size: 14px; margin-bottom: 4px;"><span>Конкуренты (-)</span><span class="mono red">−0.07</span></div>
+              <div style="height: 6px; background: var(--bg-2); border-radius: 100px;"><div style="height: 100%; width: 25%; background: var(--red); border-radius: 100px;"></div></div>
+            </div>
+          </div>
+        </div>
+
+        <div style="padding: 18px 22px; background: rgba(42,212,196,0.08); border-left: 3px solid var(--teal); border-radius: 4px;">
+          <div class="mono teal" style="font-size: 12px; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 4px;">Главный вывод</div>
+          <div style="font-size: 16px; line-height: 1.5;">
+            Сильнейший сигнал — <span class="teal">собственные транзакции ВТБ</span>. Не зависит от качества OSM и устойчив к&nbsp;ошибкам внешних источников.
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer-mark mono">GeoATM Optimizer · защита</div>
+  <div class="footer-page mono">08 / 12</div>
+</section>
+
+
+<!-- ════════════════════════════════════════════════════════════════
+     SLIDE 9 — WORKFLOW менеджера
+════════════════════════════════════════════════════════════════ -->
+<section data-screen-label="09 Workflow">
+  <div class="hex-bg"></div>
+  <div style="position: relative; z-index: 2; height: 100%; display: flex; flex-direction: column; gap: 36px;">
+
+    <div class="slide-head">
+      <span class="slide-num">09</span>
+      <div class="slide-divider"></div>
+      <span class="slide-eyebrow">Workflow менеджера</span>
+    </div>
+
+    <h2 class="h2">15 минут от&nbsp;«нужна точка» до&nbsp;<span class="teal">заявки на&nbsp;аренду</span>.</h2>
+
+    <div style="flex: 1; display: flex; flex-direction: column;">
+      <div class="step">
+        <div class="step-num">01</div>
+        <div style="flex: 1;">
+          <div class="step-title">Открыть карту</div>
+          <div class="step-body">Дашборд сразу показывает Москву в режиме тепловой карты потенциала. Скоры пересчитываются раз в месяц или при загрузке новых данных.</div>
+        </div>
+        <div class="mono ink-3" style="font-size: 13px; align-self: center;">~ 0:00</div>
+      </div>
+      <div class="step">
+        <div class="step-num">02</div>
+        <div style="flex: 1;">
+          <div class="step-title">Применить фильтры</div>
+          <div class="step-body">«Score&nbsp;≥&nbsp;85%», «скрыть зоны с банкоматами ВТБ», опционально — «у метро». Система мгновенно показывает шорт‑лист — ~&nbsp;20 ячеек по&nbsp;Москве.</div>
+        </div>
+        <div class="mono ink-3" style="font-size: 13px; align-self: center;">~ 0:30</div>
+      </div>
+      <div class="step">
+        <div class="step-num">03</div>
+        <div style="flex: 1;">
+          <div class="step-title">Изучить кандидата</div>
+          <div class="step-body">Клик по гексу&nbsp;→ карточка справа: прогноз транзакций, факторы, окружение POI. При сомнении&nbsp;— открыть полную детализацию ячейки.</div>
+        </div>
+        <div class="mono ink-3" style="font-size: 13px; align-self: center;">~ 3:00</div>
+      </div>
+      <div class="step">
+        <div class="step-num">04</div>
+        <div style="flex: 1;">
+          <div class="step-title">Принять решение</div>
+          <div class="step-body">Менеджер сравнивает 3–5 локаций, отмечает фавориты. Все выкладки модели зафиксированы — есть аудиторский след для&nbsp;принятого решения.</div>
+        </div>
+        <div class="mono ink-3" style="font-size: 13px; align-self: center;">~ 12:00</div>
+      </div>
+      <div class="step">
+        <div class="step-num">05</div>
+        <div style="flex: 1;">
+          <div class="step-title">Передать в работу</div>
+          <div class="step-body">Из карточки создаётся заявка: автоматически прикладываются скор, прогноз и список факторов. Дальше — выезд специалиста на проверку технической возможности.</div>
+        </div>
+        <div class="mono ink-3" style="font-size: 13px; align-self: center;">~ 15:00</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer-mark mono">GeoATM Optimizer · защита</div>
+  <div class="footer-page mono">09 / 12</div>
+</section>
+
+
+<!-- ════════════════════════════════════════════════════════════════
+     SLIDE 10 — МЕТРИКИ ЭФФЕКТИВНОСТИ
+════════════════════════════════════════════════════════════════ -->
+<section data-screen-label="10 Эффективность">
+  <div class="hex-bg"></div>
+  <div style="position: relative; z-index: 2; height: 100%; display: flex; flex-direction: column; gap: 36px;">
+
+    <div class="slide-head">
+      <span class="slide-num">10</span>
+      <div class="slide-divider"></div>
+      <span class="slide-eyebrow">Эффект для ВТБ</span>
+    </div>
+
+    <h2 class="h2">Что измеряем после&nbsp;запуска.</h2>
+
+    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px;">
+      <div class="kpi-card">
+        <div class="kpi-l">Time‑to‑decision</div>
+        <div class="kpi-v"><span class="teal">−95%</span></div>
+        <div class="kpi-d">с 3–5 дней до 15 мин на локацию</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-l">Conversion Rate</div>
+        <div class="kpi-v">+5–8<span style="font-size: 36px;">п.п.</span></div>
+        <div class="kpi-d">доля ATM, превысивших KPI за&nbsp;3&nbsp;мес</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-l">«Провальные» точки</div>
+        <div class="kpi-v amber">−40%</div>
+        <div class="kpi-d">экономия на демонтаже и переносе</div>
+      </div>
+    </div>
+
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 28px; flex: 1; min-height: 0;">
+      <div class="card" style="padding: 24px 28px;">
+        <div class="mono teal" style="font-size: 12px; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 14px;">Data Science · технические</div>
+        <div style="display: grid; gap: 14px; font-size: 16px;">
+          <div style="display: flex; justify-content: space-between; padding-bottom: 12px; border-bottom: 1px solid var(--line);">
+            <span>ROC‑AUC на test</span>
+            <span class="mono teal">0.823 <span class="ink-3" style="font-size: 13px;">/ target 0.75</span></span>
+          </div>
+          <div style="display: flex; justify-content: space-between; padding-bottom: 12px; border-bottom: 1px solid var(--line);">
+            <span>Calibration ECE</span>
+            <span class="mono">0.041</span>
+          </div>
+          <div style="display: flex; justify-content: space-between; padding-bottom: 12px; border-bottom: 1px solid var(--line);">
+            <span>Stability (PSI 30 дн)</span>
+            <span class="mono">0.07 <span class="ink-3" style="font-size: 13px;">/ &lt; 0.2</span></span>
+          </div>
+          <div style="display: flex; justify-content: space-between;">
+            <span>Feature interpretability</span>
+            <span class="mono teal">SHAP · бизнес‑язык</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="card" style="padding: 24px 28px;">
+        <div class="mono teal" style="font-size: 12px; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 14px;">Бизнес · для&nbsp;ВТБ</div>
+        <div style="display: grid; gap: 14px; font-size: 16px;">
+          <div style="display: flex; justify-content: space-between; padding-bottom: 12px; border-bottom: 1px solid var(--line);">
+            <span>Аналитика одной локации</span>
+            <span class="mono teal">15 мин <span class="ink-3" style="font-size: 13px;">/ было 3–5 дн</span></span>
+          </div>
+          <div style="display: flex; justify-content: space-between; padding-bottom: 12px; border-bottom: 1px solid var(--line);">
+            <span>Доля точек &gt; KPI за 3 мес</span>
+            <span class="mono">+5–8 п.п.</span>
+          </div>
+          <div style="display: flex; justify-content: space-between; padding-bottom: 12px; border-bottom: 1px solid var(--line);">
+            <span>Сокращение OPEX</span>
+            <span class="mono">~ 40 млн ₽/год</span>
+          </div>
+          <div style="display: flex; justify-content: space-between;">
+            <span>Аудиторский след решений</span>
+            <span class="mono teal">100% · логируется</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer-mark mono">GeoATM Optimizer · защита</div>
+  <div class="footer-page mono">10 / 12</div>
+</section>
+
+
+<!-- ════════════════════════════════════════════════════════════════
+     SLIDE 11 — РИСКИ И ОГРАНИЧЕНИЯ
+════════════════════════════════════════════════════════════════ -->
+<section data-screen-label="11 Риски">
+  <div class="hex-bg"></div>
+  <div style="position: relative; z-index: 2; height: 100%; display: flex; flex-direction: column; gap: 32px;">
+
+    <div class="slide-head">
+      <span class="slide-num">11</span>
+      <div class="slide-divider"></div>
+      <span class="slide-eyebrow">Риски и митигации</span>
+    </div>
+
+    <h2 class="h2">Что может пойти не так<br/>— и&nbsp;что мы&nbsp;с&nbsp;этим делаем.</h2>
+
+    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; flex: 1;">
+
+      <div class="card" style="padding: 28px 30px; display: flex; flex-direction: column;">
+        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 16px;">
+          <span style="width: 8px; height: 8px; background: var(--red); border-radius: 100px; box-shadow: 0 0 8px var(--red);"></span>
+          <span class="mono red" style="font-size: 12px; letter-spacing: 0.1em; text-transform: uppercase;">Риск 01</span>
+        </div>
+        <div class="h3" style="margin-bottom: 12px;">Каннибализация<br/>собственной сети</div>
+        <p class="ink-2" style="font-size: 15px; line-height: 1.55;">Новый ATM рядом со «своим» — отбирает трафик, а не создаёт его.</p>
+        <div style="margin-top: auto; padding-top: 18px; border-top: 1px solid var(--line);">
+          <div class="mono teal" style="font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 6px;">→ Митигация</div>
+          <div style="font-size: 14px; line-height: 1.55; color: var(--ink-1);">Штраф в&nbsp;модели по&nbsp;близости к&nbsp;своим ATM. Чекбокс «скрыть зоны с банкоматами ВТБ» в&nbsp;фильтрах.</div>
+        </div>
+      </div>
+
+      <div class="card" style="padding: 28px 30px; display: flex; flex-direction: column;">
+        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 16px;">
+          <span style="width: 8px; height: 8px; background: var(--amber); border-radius: 100px; box-shadow: 0 0 8px var(--amber);"></span>
+          <span class="mono amber" style="font-size: 12px; letter-spacing: 0.1em; text-transform: uppercase;">Риск 02</span>
+        </div>
+        <div class="h3" style="margin-bottom: 12px;">Устаревшие<br/>внешние&nbsp;данные</div>
+        <p class="ink-2" style="font-size: 15px; line-height: 1.55;">OSM, реестры ТЦ и конкурентов отстают от реальности.</p>
+        <div style="margin-top: auto; padding-top: 18px; border-top: 1px solid var(--line);">
+          <div class="mono teal" style="font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 6px;">→ Митигация</div>
+          <div style="font-size: 14px; line-height: 1.55; color: var(--ink-1);">Главный сигнал&nbsp;— собственные транзакции ВТБ&nbsp;(«след клиента не&nbsp;врёт»). Внешние данные — модификаторы, не основа.</div>
+        </div>
+      </div>
+
+      <div class="card" style="padding: 28px 30px; display: flex; flex-direction: column;">
+        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 16px;">
+          <span style="width: 8px; height: 8px; background: #5fb4ff; border-radius: 100px; box-shadow: 0 0 8px #5fb4ff;"></span>
+          <span class="mono" style="color: #5fb4ff; font-size: 12px; letter-spacing: 0.1em; text-transform: uppercase;">Риск 03</span>
+        </div>
+        <div class="h3" style="margin-bottom: 12px;">Физические<br/>ограничения</div>
+        <p class="ink-2" style="font-size: 15px; line-height: 1.55;">Высокий Score ≠ возможность установки: нужны интернет, розетка, согласие арендодателя.</p>
+        <div style="margin-top: auto; padding-top: 18px; border-top: 1px solid var(--line);">
+          <div class="mono teal" style="font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 6px;">→ Митигация</div>
+          <div style="font-size: 14px; line-height: 1.55; color: var(--ink-1);">Pre‑flight чек‑лист в&nbsp;карточке. Финальное решение — выезд специалиста. <span class="ink-3">Модель рекомендует, человек подтверждает.</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer-mark mono">GeoATM Optimizer · защита</div>
+  <div class="footer-page mono">11 / 12</div>
+</section>
+
+
+<!-- ════════════════════════════════════════════════════════════════
+     SLIDE 12 — ИТОГ
+════════════════════════════════════════════════════════════════ -->
+<section data-screen-label="12 Итог">
+  <div class="hex-bg"></div>
+  <div style="position: relative; z-index: 2; height: 100%; display: flex; flex-direction: column; gap: 40px;">
+
+    <div class="slide-head">
+      <span class="slide-num">12</span>
+      <div class="slide-divider"></div>
+      <span class="slide-eyebrow">Резюме · roadmap</span>
+    </div>
+
+    <h1 class="h1" style="font-size: 84px; line-height: 1.18; max-width: 1500px;">
+      Из <span class="amber">«выберем на глаз»</span><br/>
+      в <span class="teal">«покажи топ‑20»</span>.
+    </h1>
+
+    <div style="display: grid; grid-template-columns: 1.4fr 1fr; gap: 64px; flex: 1; align-items: stretch;">
+
+      <div>
+        <p style="font-size: 22px; line-height: 1.5; color: var(--ink-1); margin: 0 0 32px 0;">
+          GeoATM Optimizer&nbsp;— это не отчёт раз в&nbsp;квартал, а&nbsp;живой инструмент менеджера. Скоры обновляются каждый месяц, решения становятся быстрее и аргументированнее.
+        </p>
+
+        <div class="mono teal" style="font-size: 13px; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 16px;">Дальше</div>
+        <div style="display: grid; gap: 16px;">
+          <div style="display: flex; gap: 16px;">
+            <span class="mono ink-3" style="width: 60px;">Q3 2026</span>
+            <span>пилот в&nbsp;ЦАО Москвы, 50 кандидатов на&nbsp;установку</span>
+          </div>
+          <div style="display: flex; gap: 16px;">
+            <span class="mono ink-3" style="width: 60px;">Q4 2026</span>
+            <span>раскат на&nbsp;Москву + СПб, интеграция с&nbsp;CRM по&nbsp;аренде</span>
+          </div>
+          <div style="display: flex; gap: 16px;">
+            <span class="mono ink-3" style="width: 60px;">2027</span>
+            <span>модель сценарного планирования: «что, если?» для&nbsp;всей сети</span>
+          </div>
+        </div>
+      </div>
+
+      <div style="background: linear-gradient(180deg, var(--bg-1), var(--bg-0)); border: 1px solid var(--line); border-radius: 14px; padding: 32px; display: flex; flex-direction: column; justify-content: space-between;">
+        <div>
+          <div class="mono teal" style="font-size: 13px; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 12px;">Команда</div>
+          <div style="font-size: 17px; line-height: 1.8;">
+            <div><span class="ink-3">Lead·DS&nbsp;</span> Андрей Климов</div>
+            <div><span class="ink-3">Frontend&nbsp;</span> Мария Петрова</div>
+            <div><span class="ink-3">Data eng&nbsp;</span> Иван Соколов</div>
+            <div><span class="ink-3">Дизайн&nbsp;</span> Ольга Васильева</div>
+          </div>
+        </div>
+        <div>
+          <div class="mono ink-3" style="font-size: 12px; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 6px;">Куратор</div>
+          <div style="font-size: 15px;">Высшая школа · 2026</div>
+        </div>
+        <div style="padding-top: 20px; border-top: 1px solid var(--line);">
+          <div style="font-family: Manrope; font-size: 28px; font-weight: 700; letter-spacing: -0.015em;">Спасибо.</div>
+          <div class="ink-2" style="margin-top: 4px; font-size: 15px;">Готовы к&nbsp;вопросам.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer-mark mono">GeoATM Optimizer · защита</div>
+  <div class="footer-page mono">12 / 12</div>
+</section>
+
+</deck-stage>
+
+<script src="deck-stage.js"></script>
+
+<script>
+// ─── Title slide hex cluster ──────────────────────────────────
+(function() {
+  const cluster = document.getElementById("hex-cluster");
+  if (!cluster) return;
+
+  // pointy-top hex
+  function hex(cx, cy, r) {
+    const w = Math.sqrt(3) * r;
+    return [[cx, cy - r],[cx + w/2, cy - r/2],[cx + w/2, cy + r/2],[cx, cy + r],[cx - w/2, cy + r/2],[cx - w/2, cy - r/2]].map(p => p.join(",")).join(" ");
+  }
+  function scoreColor(s) {
+    const stops = [[22,42,92],[33,110,168],[38,178,184],[134,200,130],[240,178,70],[232,86,60]];
+    const t = Math.max(0, Math.min(0.9999, s)) * (stops.length - 1);
+    const i = Math.floor(t), f = t - i;
+    const a = stops[i], b = stops[i + 1];
+    return `rgb(${a[0]+(b[0]-a[0])*f},${a[1]+(b[1]-a[1])*f},${a[2]+(b[2]-a[2])*f})`;
+  }
+  const r = 26;
+  const w = Math.sqrt(3) * r;
+  const rows = 14, cols = 14;
+  let seed = 42;
+  const rand = () => { seed = (seed * 9301 + 49297) % 233280; return seed / 233280; };
+
+  for (let row = 0; row < rows; row++) {
+    for (let col = 0; col < cols; col++) {
+      const x = col * w + (row % 2 ? w/2 : 0) + 60;
+      const y = row * 1.5 * r + 80;
+      const d = Math.hypot(x - 360, y - 360);
+      if (d > 320) continue;
+      // score gradient from center
+      let score = Math.max(0, 1 - d / 260) + (rand() - 0.5) * 0.25;
+      score = Math.max(0.02, Math.min(0.99, score));
+      const visible = rand() > 0.15;
+      const opacity = visible ? (0.4 + score * 0.6) : 0.15;
+      const poly = document.createElementNS("http://www.w3.org/2000/svg", "polygon");
+      poly.setAttribute("points", hex(x, y, r - 2));
+      poly.setAttribute("fill", scoreColor(score));
+      poly.setAttribute("fill-opacity", opacity);
+      poly.setAttribute("stroke", "rgba(255,255,255,0.05)");
+      poly.setAttribute("stroke-width", "0.6");
+      cluster.appendChild(poly);
+    }
+  }
+})();
+
+// ─── H3 explainer hex (slide 5) ───────────────────────────────
+(function() {
+  const g = document.getElementById("hex-explainer");
+  if (!g) return;
+  function hex(cx, cy, r) {
+    const w = Math.sqrt(3) * r;
+    return [[cx, cy - r],[cx + w/2, cy - r/2],[cx + w/2, cy + r/2],[cx, cy + r],[cx - w/2, cy + r/2],[cx - w/2, cy - r/2]].map(p => p.join(",")).join(" ");
+  }
+  // Center + 6 neighbors
+  const r = 90, w = Math.sqrt(3) * r;
+  const centers = [
+    [300, 300, true,  "c"],
+    [300, 300 - 2*r * 0.75, false, "N"],
+    [300, 300 + 2*r * 0.75, false, "S"],
+    [300 + w * 0.75, 300 - r * 0.75 + r * 0.0, false, "NE"],
+    [300 + w * 0.75, 300 + r * 0.75 + r * 0.0, false, "SE"],
+    [300 - w * 0.75, 300 - r * 0.75 + r * 0.0, false, "NW"],
+    [300 - w * 0.75, 300 + r * 0.75 + r * 0.0, false, "SW"],
+  ];
+  // simpler offset for pointy-top: neighbor offsets
+  const offsets = [
+    [0, -2*r * 0.85, "N"],
+    [w * 0.85, -r * 0.85, "NE"],
+    [w * 0.85, r * 0.85, "SE"],
+    [0, 2*r * 0.85, "S"],
+    [-w * 0.85, r * 0.85, "SW"],
+    [-w * 0.85, -r * 0.85, "NW"],
+  ];
+
+  // Center hex (selected)
+  const center = document.createElementNS("http://www.w3.org/2000/svg", "polygon");
+  center.setAttribute("points", hex(300, 300, r));
+  center.setAttribute("fill", "rgba(42,212,196,0.32)");
+  center.setAttribute("stroke", "#2ad4c4");
+  center.setAttribute("stroke-width", "2.5");
+  g.appendChild(center);
+
+  const txt = document.createElementNS("http://www.w3.org/2000/svg", "text");
+  txt.setAttribute("x", 300); txt.setAttribute("y", 296);
+  txt.setAttribute("text-anchor", "middle");
+  txt.setAttribute("fill", "#f4f8ff");
+  txt.setAttribute("font-family", "JetBrains Mono");
+  txt.setAttribute("font-size", "13");
+  txt.textContent = "h3_index";
+  g.appendChild(txt);
+  const txt2 = document.createElementNS("http://www.w3.org/2000/svg", "text");
+  txt2.setAttribute("x", 300); txt2.setAttribute("y", 318);
+  txt2.setAttribute("text-anchor", "middle");
+  txt2.setAttribute("fill", "#2ad4c4");
+  txt2.setAttribute("font-family", "JetBrains Mono");
+  txt2.setAttribute("font-size", "15");
+  txt2.textContent = "89a2f12b4f3a01";
+  g.appendChild(txt2);
+
+  // Neighbors
+  offsets.forEach(([dx, dy, name]) => {
+    const cx = 300 + dx, cy = 300 + dy;
+    const poly = document.createElementNS("http://www.w3.org/2000/svg", "polygon");
+    poly.setAttribute("points", hex(cx, cy, r));
+    poly.setAttribute("fill", "rgba(38,178,184,0.06)");
+    poly.setAttribute("stroke", "#25496e");
+    poly.setAttribute("stroke-width", "1");
+    g.appendChild(poly);
+
+    // distance line
+    const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+    line.setAttribute("x1", 300); line.setAttribute("y1", 300);
+    line.setAttribute("x2", cx); line.setAttribute("y2", cy);
+    line.setAttribute("stroke", "#1aa495");
+    line.setAttribute("stroke-width", "1");
+    line.setAttribute("stroke-dasharray", "3 4");
+    g.appendChild(line);
+
+    // distance label
+    const lbl = document.createElementNS("http://www.w3.org/2000/svg", "text");
+    lbl.setAttribute("x", (300 + cx) / 2 + 6);
+    lbl.setAttribute("y", (300 + cy) / 2 - 2);
+    lbl.setAttribute("fill", "#8ea2bf");
+    lbl.setAttribute("font-family", "JetBrains Mono");
+    lbl.setAttribute("font-size", "11");
+    lbl.textContent = "348м";
+    g.appendChild(lbl);
+  });
+})();
+</script>
+
+</body>
+</html>

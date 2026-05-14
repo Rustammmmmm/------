@@ -1,4 +1,4 @@
-/* global React, GEO_DATA, hexPath, scoreColor, formatRub, formatNum, Icon, Sparkline, HBar, LineChart, ConfusionMatrix, TopBar, StatusBar, MapView */
+/* global React, GEO_DATA, hexPath, scoreColor, formatRub, formatNum, Icon, Sparkline, HBar, LineChart, ConfusionMatrix, TopBar, StatusBar, MapView, MapBase, ATMPin */
 const { useState: uSt, useMemo: uMe, useEffect: uEf } = React;
 
 // ════════════════════════════════════════════════════════════════════════
@@ -31,6 +31,25 @@ function DetailView({ selected, setSelected, setTab }) {
   const neighbors = hexes.filter(h => Math.abs(h.cx - hex.cx) < R && Math.abs(h.cy - hex.cy) < R);
 
   const mccEntries = Object.entries(hex.mcc).sort((a, b) => b[1] - a[1]);
+
+  // ─── Экономика: реальные тендерные ценники ────────────────────────────
+  const COST = {
+    supply:    [495_000, 605_000], // Поставка
+    install:    22_000,            // Установка
+    software:   54_000,            // ПО
+    annualOps:  40_000,            // Годовое обслуживание
+  };
+  const capexMin = COST.supply[0] + COST.install + COST.software;
+  const capexMax = COST.supply[1] + COST.install + COST.software;
+  const totalYear1Min = capexMin + COST.annualOps;
+  const totalYear1Max = capexMax + COST.annualOps;
+  // Прогноз дохода с ATM: интерчейндж + комиссия за внесение/снятие
+  // ~12 ₽/транзакция × число + 0.08% от оборота (после расходов на инкассацию и аренду)
+  const monthRev = Math.round(hex.txCount * 12 + hex.txSum * 0.0008);
+  const yearRev = monthRev * 12;
+  const paybackMin = Math.max(6, Math.round(capexMin / monthRev));
+  const paybackMax = Math.max(8, Math.round(capexMax / monthRev));
+  const lotSizes = [5, 10, 15, 20];
 
   return (
     <div className="detail-shell">
@@ -94,9 +113,9 @@ function DetailView({ selected, setSelected, setTab }) {
                   <div className="mono" style={{ fontSize: 11, color: "var(--ink-2)" }}>уже бывают в зоне</div>
                 </div>
                 <div style={{ background: "var(--bg-1)", padding: 14 }}>
-                  <div style={{ fontSize: 10.5, color: "var(--ink-3)", textTransform: "uppercase", letterSpacing: "0.06em" }}>Окупаемость</div>
-                  <div className="display" style={{ fontSize: 26, fontWeight: 700, letterSpacing: "-0.02em", color: hex.score >= 0.7 ? "var(--teal)" : "var(--ink-2)" }}>~ {Math.max(6, Math.round(22 - hex.score * 18))} мес</div>
-                  <div className="mono" style={{ fontSize: 11, color: "var(--ink-2)" }}>при текущей аренде</div>
+                  <div style={{ fontSize: 10.5, color: "var(--ink-3)", textTransform: "uppercase", letterSpacing: "0.06em" }}>Окупаемость CAPEX</div>
+                  <div className="display" style={{ fontSize: 26, fontWeight: 700, letterSpacing: "-0.02em", color: paybackMax <= 18 ? "var(--teal)" : "var(--amber)" }}>{paybackMin}–{paybackMax} мес</div>
+                  <div className="mono" style={{ fontSize: 11, color: "var(--ink-2)" }}>при доходе ~{(monthRev/1000).toFixed(0)} тыс ₽/мес</div>
                 </div>
               </div>
             </div>
@@ -147,48 +166,78 @@ function DetailView({ selected, setSelected, setTab }) {
         {/* Center: mini map */}
         <div className="panel" style={{ overflow: "hidden", display: "flex", flexDirection: "column" }}>
           <div className="panel-header"><span>Окружение в радиусе 500м</span><span className="meta">live</span></div>
-          <div style={{ flex: 1, background: "#07101e", position: "relative", minHeight: 320 }}>
+          <div style={{ flex: 1, background: "#f4ead4", position: "relative", minHeight: 320 }}>
             <svg viewBox={`${vbX} ${vbY} ${vbW} ${vbH}`} width="100%" height="100%" style={{ display: "block" }}>
-              {/* river within view */}
-              <path d={GEO_DATA.riverPath} fill="none" stroke="rgba(75,150,210,0.32)" strokeWidth="14" strokeLinecap="round"/>
-              {/* neighbor hexes */}
+              <MapBase showLabels={true} showBlockNumbers={true}/>
+              {/* neighbor hexes (полупрозрачные) */}
               {neighbors.map(h => (
                 <polygon key={h.id}
                   points={hexPath(h.cx, h.cy, geom.HEX_R - 1)}
-                  fill={scoreColor(h.score, 0.55)}
-                  stroke={h.id === hex.id ? "#f4f8ff" : "rgba(255,255,255,0.06)"}
-                  strokeWidth={h.id === hex.id ? 2.4 : 0.6}
+                  fill={scoreColor(h.score, h.id === hex.id ? 0.55 : 0.35)}
+                  stroke={h.id === hex.id ? "#0b1828" : "rgba(11,24,40,0.12)"}
+                  strokeWidth={h.id === hex.id ? 2.6 : 0.5}
                 />
               ))}
               {/* POI: metro */}
               {GEO_DATA.metro.filter(m => Math.abs(m.x - hex.cx) < R && Math.abs(m.y - hex.cy) < R).map(m => (
-                <g key={m.id}>
-                  <circle cx={m.x} cy={m.y} r="4.5" fill="#ffd166" stroke="#3a2a08" strokeWidth="1.2"/>
-                  <text x={m.x + 8} y={m.y + 3} fontSize="7.5" fill="#cfdcee" fontFamily="Inter">{m.name}</text>
+                <g key={m.id} pointerEvents="none">
+                  <circle cx={m.x} cy={m.y} r="4.5" fill="#ffd166" stroke="#5a3a08" strokeWidth="1.2"/>
+                  <text x={m.x + 7} y={m.y + 3} fontSize="6.5" fill="rgba(50,40,20,0.85)" fontFamily="Inter" fontWeight="600"
+                    stroke="#fbf6ec" strokeWidth="2.2" paintOrder="stroke">M · {m.name}</text>
                 </g>
               ))}
-              {/* POI: vtb */}
-              {GEO_DATA.vtbAtms.filter(a => Math.abs(a.x - hex.cx) < R && Math.abs(a.y - hex.cy) < R).map(a => (
-                <g key={a.id}>
-                  <circle cx={a.x} cy={a.y} r="5" fill="rgba(95,180,255,0.18)" stroke="rgba(95,180,255,0.9)" strokeWidth="1.2"/>
-                  <circle cx={a.x} cy={a.y} r="2" fill="#5fb4ff"/>
+              {/* POI: parks */}
+              {GEO_DATA.parks.filter(p => Math.abs(p.x - hex.cx) < R && Math.abs(p.y - hex.cy) < R).map(p => (
+                <text key={"plbl-"+p.id} x={p.x} y={p.y} pointerEvents="none"
+                  fontSize="6.5" fontFamily="Inter" fontWeight="500" textAnchor="middle"
+                  fill="rgba(40,60,20,0.6)"
+                  stroke="#e8f4cf" strokeWidth="1.8" paintOrder="stroke">
+                  {p.name}
+                </text>
+              ))}
+              {/* POI: hardware */}
+              {GEO_DATA.hardwares.filter(hw => Math.abs(hw.x - hex.cx) < R && Math.abs(hw.y - hex.cy) < R).map(hw => (
+                <g key={hw.id} pointerEvents="none">
+                  <rect x={hw.x - 4.5} y={hw.y - 4.5} width="9" height="9" fill="#f97316" stroke="#5a2c08" strokeWidth="1" rx="1.5"/>
+                  <text x={hw.x + 7} y={hw.y + 3} fontSize="6" fill="rgba(50,30,10,0.85)" fontFamily="Inter" fontWeight="600"
+                    stroke="#fbf6ec" strokeWidth="2" paintOrder="stroke">{hw.name}</text>
                 </g>
+              ))}
+              {/* POI: vtb pins */}
+              {GEO_DATA.vtbAtms.filter(a => Math.abs(a.x - hex.cx) < R && Math.abs(a.y - hex.cy) < R).map(a => (
+                <ATMPin key={a.id} x={a.x} y={a.y} label="ВТБ" color="#1d6fb8" large={true}/>
               ))}
               {/* POI: competitors */}
-              {GEO_DATA.competitors.filter(co => Math.abs(co.x - hex.cx) < R && Math.abs(co.y - hex.cy) < R).map(co => (
-                <g key={co.id}>
-                  <circle cx={co.x} cy={co.y} r="2.5" fill="#ff7a91" stroke="#3a0c1a" strokeWidth="0.8"/>
-                </g>
-              ))}
+              {GEO_DATA.competitors.filter(co => Math.abs(co.x - hex.cx) < R && Math.abs(co.y - hex.cy) < R).map(co => {
+                const bankColor = {
+                  "СБ": "#21a038", "АЛ": "#ef3124", "ТК": "#fcd535",
+                  "ГП": "#0079c1", "РС": "#e30613"
+                }[co.bank] || "#888";
+                const bankFg = co.bank === "ТК" ? "#1a1a1a" : "#fff";
+                return <ATMPin key={co.id} x={co.x} y={co.y} label={co.bank} color={bankColor} fg={bankFg} large={true}/>;
+              })}
               {/* POI: malls */}
               {GEO_DATA.malls.filter(m => Math.abs(m.x - hex.cx) < R && Math.abs(m.y - hex.cy) < R).map(m => (
-                <g key={m.id}>
-                  <rect x={m.x - 4} y={m.y - 4} width="8" height="8" fill="#c084fc" stroke="#1a0d3e" strokeWidth="1" transform={`rotate(45 ${m.x} ${m.y})`}/>
-                  <text x={m.x + 8} y={m.y + 3} fontSize="7.5" fill="#cfdcee" fontFamily="Inter">{m.name}</text>
+                <g key={m.id} pointerEvents="none">
+                  <rect x={m.x - 4} y={m.y - 4} width="8" height="8" fill="#c084fc" stroke="#3e1d65" strokeWidth="1" transform={`rotate(45 ${m.x} ${m.y})`}/>
+                  <text x={m.x + 7} y={m.y + 3} fontSize="6.5" fill="rgba(50,30,60,0.85)" fontFamily="Inter" fontWeight="600"
+                    stroke="#fbf6ec" strokeWidth="2.2" paintOrder="stroke">ТЦ «{m.name}»</text>
                 </g>
               ))}
+              {/* Selected hex pin */}
+              <g pointerEvents="none">
+                <circle cx={hex.cx} cy={hex.cy - 16} r="6" fill="#e11d48" stroke="#fff" strokeWidth="1.5"/>
+                <path d={`M ${hex.cx - 4} ${hex.cy - 12} L ${hex.cx} ${hex.cy - 5} L ${hex.cx + 4} ${hex.cy - 12} Z`} fill="#e11d48"/>
+                <text x={hex.cx} y={hex.cy - 13} fontSize="7" fontFamily="Inter" fontWeight="800" fill="#fff" textAnchor="middle">A</text>
+              </g>
             </svg>
-            <div style={{ position: "absolute", left: 10, top: 10, fontSize: 10.5, color: "var(--ink-3)", letterSpacing: "0.06em", textTransform: "uppercase" }}>центр кадра — выбранная ячейка</div>
+            <div style={{
+              position: "absolute", left: 10, top: 10,
+              background: "rgba(11,24,40,0.85)", color: "var(--ink-0)",
+              padding: "6px 10px", borderRadius: 5, fontSize: 10.5,
+              letterSpacing: "0.06em", textTransform: "uppercase",
+              border: "1px solid var(--line-2)"
+            }}>центр кадра — выбранная ячейка</div>
           </div>
           <div style={{ padding: 12, borderTop: "1px solid var(--line)", display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, fontSize: 11.5 }}>
             <div><span style={{ color: "var(--ink-3)" }}>Метро рядом:</span> <span className="mono">{hex.metroNear ? "1 (Тверская, 180м)" : "—"}</span></div>
@@ -198,26 +247,84 @@ function DetailView({ selected, setSelected, setTab }) {
           </div>
         </div>
 
-        {/* Right: decision + comparison + risk */}
+        {/* Right: cost + risk + summary */}
         <div style={{ display: "grid", gap: 12 }}>
           <div className="panel">
-            <div className="panel-header"><span>Сравнение с baseline</span><span className="meta">vs экспертный отбор</span></div>
-            <div className="panel-body" style={{ display: "grid", gap: 8 }}>
-              {[
-                { l: "ML-Score модели",     v: (hex.score * 100).toFixed(0), unit: "/100",    bar: hex.score, base: 0.62, color: "var(--teal)" },
-                { l: "Экспертная оценка",   v: "62",                          unit: "/100",    bar: 0.62, base: 0.62, color: "var(--ink-2)" },
-                { l: "Окупаемость",         v: "7 мес",                       unit: "",        bar: 0.78, base: 0.45, color: "var(--green)", goodLow: true },
-              ].map((row, i) => (
-                <div key={i}>
-                  <div style={{ display: "flex", justifyContent: "space-between", fontSize: 12, marginBottom: 3 }}>
-                    <span style={{ color: "var(--ink-1)" }}>{row.l}</span>
-                    <span className="mono" style={{ color: row.color }}>{row.v}<span style={{ color: "var(--ink-3)" }}>{row.unit}</span></span>
-                  </div>
-                  <div style={{ height: 5, background: "var(--bg-2)", borderRadius: 100 }}>
-                    <div style={{ height: "100%", width: (row.bar * 100) + "%", background: row.color, opacity: 0.85, borderRadius: 100 }}/>
-                  </div>
+            <div className="panel-header"><span>Экономика установки</span><span className="meta">тендер 2026</span></div>
+            <div className="panel-body" style={{ padding: 0 }}>
+              <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 12 }}>
+                <tbody>
+                  {[
+                    { l: "Поставка устройства", v: "495 – 605 тыс ₽", sub: "Wincor / NCR · кэш-ин", capex: true },
+                    { l: "Установка и монтаж",  v: "22 тыс ₽",         sub: "разовая", capex: true },
+                    { l: "ПО / лицензия",       v: "54 тыс ₽",         sub: "разовая", capex: true },
+                    { l: "Годовое обслуживание", v: "40 тыс ₽",        sub: "OPEX/год", capex: false },
+                  ].map((r, i) => (
+                    <tr key={i} style={{ borderBottom: "1px solid var(--line)" }}>
+                      <td style={{ padding: "9px 14px", color: "var(--ink-1)" }}>
+                        <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                          <span style={{ width: 4, height: 4, borderRadius: 100, background: r.capex ? "var(--teal)" : "var(--amber)" }}/>
+                          {r.l}
+                        </div>
+                        <div style={{ fontSize: 10, color: "var(--ink-3)", marginLeft: 10, fontFamily: "JetBrains Mono" }}>{r.sub}</div>
+                      </td>
+                      <td className="mono" style={{ padding: "9px 14px", textAlign: "right", color: "var(--ink-0)" }}>{r.v}</td>
+                    </tr>
+                  ))}
+                  <tr style={{ background: "var(--bg-2)" }}>
+                    <td style={{ padding: "10px 14px", color: "var(--ink-0)", fontWeight: 600 }}>
+                      <span style={{ width: 4, height: 4, borderRadius: 100, background: "var(--teal)", display: "inline-block", marginRight: 6, verticalAlign: 3 }}/>
+                      CAPEX разово
+                    </td>
+                    <td className="mono" style={{ padding: "10px 14px", textAlign: "right", color: "var(--teal)", fontWeight: 600 }}>571 – 681 тыс ₽</td>
+                  </tr>
+                  <tr style={{ background: "var(--bg-2)", borderTop: "1px solid var(--line)" }}>
+                    <td style={{ padding: "10px 14px", color: "var(--ink-0)", fontWeight: 600 }}>
+                      Полная стоимость 1-го года
+                      <div style={{ fontSize: 10, color: "var(--ink-3)", fontFamily: "JetBrains Mono", fontWeight: 400 }}>CAPEX + OPEX</div>
+                    </td>
+                    <td className="mono" style={{ padding: "10px 14px", textAlign: "right", color: "var(--ink-0)", fontWeight: 700, fontSize: 13 }}>611 – 721 тыс ₽</td>
+                  </tr>
+                </tbody>
+              </table>
+              <div style={{ padding: "10px 14px", borderTop: "1px solid var(--line)", display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, fontSize: 11.5 }}>
+                <div>
+                  <div style={{ fontSize: 10, color: "var(--ink-3)", textTransform: "uppercase", letterSpacing: "0.06em" }}>Прогноз дохода</div>
+                  <div className="mono" style={{ color: "var(--green)", fontWeight: 600, fontSize: 13 }}>{(monthRev / 1000).toFixed(0)} тыс ₽/мес</div>
+                  <div className="mono" style={{ color: "var(--ink-3)", fontSize: 10 }}>≈ {(yearRev / 1e6).toFixed(2)} млн ₽/год</div>
                 </div>
-              ))}
+                <div>
+                  <div style={{ fontSize: 10, color: "var(--ink-3)", textTransform: "uppercase", letterSpacing: "0.06em" }}>Окупаемость CAPEX</div>
+                  <div className="mono" style={{ color: paybackMax <= 18 ? "var(--teal)" : "var(--amber)", fontWeight: 600, fontSize: 13 }}>{paybackMin}–{paybackMax} мес</div>
+                  <div className="mono" style={{ color: "var(--ink-3)", fontSize: 10 }}>при текущем потоке</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="panel">
+            <div className="panel-header"><span>Тендерный лот</span><span className="meta">типовой объём 5–20 шт</span></div>
+            <div className="panel-body" style={{ padding: 0 }}>
+              <div style={{ display: "grid", gridTemplateColumns: "60px 1fr 1fr 1fr", padding: "8px 14px", borderBottom: "1px solid var(--line)", fontSize: 10, textTransform: "uppercase", letterSpacing: "0.06em", color: "var(--ink-3)" }}>
+                <div>Лот</div><div>CAPEX</div><div>1-й год</div><div>Окуп.</div>
+              </div>
+              {lotSizes.map((n) => {
+                const lCapMin = capexMin * n;
+                const lCapMax = capexMax * n;
+                const lY1Min = totalYear1Min * n;
+                const lY1Max = totalYear1Max * n;
+                return (
+                  <div key={n} style={{ display: "grid", gridTemplateColumns: "60px 1fr 1fr 1fr", padding: "9px 14px", borderBottom: "1px solid var(--line)", fontSize: 11.5, alignItems: "center" }}>
+                    <div className="display" style={{ fontWeight: 700, fontSize: 16 }}>×{n}</div>
+                    <div className="mono" style={{ color: "var(--ink-1)" }}>{(lCapMin/1e6).toFixed(1)}–{(lCapMax/1e6).toFixed(1)} <span style={{ color: "var(--ink-3)" }}>млн</span></div>
+                    <div className="mono" style={{ color: "var(--ink-0)" }}>{(lY1Min/1e6).toFixed(1)}–{(lY1Max/1e6).toFixed(1)} <span style={{ color: "var(--ink-3)" }}>млн</span></div>
+                    <div className="mono" style={{ color: paybackMax <= 18 ? "var(--teal)" : "var(--amber)" }}>{paybackMin}–{paybackMax} мес</div>
+                  </div>
+                );
+              })}
+              <div style={{ padding: "10px 14px", background: "var(--bg-2)", fontSize: 11, color: "var(--ink-2)", lineHeight: 1.55 }}>
+                Окупаемость лота считается из совокупного потока по топ-{lotSizes[lotSizes.length-1]} ячейкам шорт-листа. Расчёт дохода: 12 ₽/транзакция + 0.08% от оборота (за вычетом инкассации и аренды).
+              </div>
             </div>
           </div>
 
@@ -279,14 +386,16 @@ function MetricsView() {
   }, []);
 
   const featureImportance = [
-    { label: "Транзакционный след ВТБ", value: 0.28 },
-    { label: "Плотность населения",     value: 0.19 },
-    { label: "Концентрация ТЦ/POI",     value: 0.14 },
-    { label: "Близость метро / ТПУ",     value: 0.12 },
-    { label: "Бизнес-центры рядом",      value: 0.09 },
+    { label: "Транзакционный след ВТБ", value: 0.24 },
+    { label: "Плотность населения",     value: 0.17 },
+    { label: "Концентрация ТЦ/POI",     value: 0.13 },
+    { label: "Близость метро / ТПУ",     value: 0.11 },
+    { label: "Строймагазины (наличка)",  value: 0.09 },
+    { label: "Парки / достопримеч.",     value: 0.07 },
+    { label: "Бизнес-центры рядом",      value: 0.06 },
+    { label: "Узел НГПТ",                value: 0.05 },
     { label: "Конкуренты (-)",           value: -0.07 },
     { label: "Каннибализация ВТБ (-)",   value: -0.06 },
-    { label: "Близость ВУЗа",            value: 0.05 },
   ];
 
   const monthsSparkAUC = [0.71, 0.74, 0.73, 0.76, 0.78, 0.80, 0.81, 0.82, 0.823];

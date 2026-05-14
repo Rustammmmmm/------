@@ -43,19 +43,24 @@ const Icon = {
 };
 
 // ─── Brand ─────────────────────────────────────────────────────────────
-function BrandMark({ size = 22 }) {
+function BrandMark({ size = 28 }) {
   return (
-    <svg width={size} height={size} viewBox="0 0 24 24">
-      <defs>
-        <linearGradient id="bm-grad" x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0%" stopColor="#5ee2d4" />
-          <stop offset="100%" stopColor="#1a89a8" />
-        </linearGradient>
-      </defs>
-      <path d="M12 2 L21 7 V17 L12 22 L3 17 V7 Z" fill="url(#bm-grad)" opacity="0.18" />
-      <path d="M12 2 L21 7 V17 L12 22 L3 17 V7 Z" fill="none" stroke="url(#bm-grad)" strokeWidth="1.6" strokeLinejoin="round" />
-      <circle cx="12" cy="12" r="2.2" fill="#5ee2d4" />
-    </svg>);
+    <img
+      src="assets/hh-mark.png"
+      alt="хайпхаус"
+      width={size} height={size}
+      style={{ display: "block", objectFit: "contain", filter: "drop-shadow(0 0 6px rgba(95,180,255,0.25))" }}
+    />);
+
+}
+
+function BrandLockup({ height = 30 }) {
+  return (
+    <img
+      src="assets/hh-lockup.png"
+      alt="хайпхаус"
+      style={{ height, display: "block", objectFit: "contain" }}
+    />);
 
 }
 
@@ -69,9 +74,8 @@ function TopBar({ tab, setTab }) {
   return (
     <div className="topbar">
       <div className="brand">
-        <BrandMark size={22} />
-        <span>Хайп хаус</span>
-        <span className="brand-tag"> МСК</span>
+        <BrandLockup height={26} />
+        <span className="brand-tag">МСК</span>
       </div>
       <div className="nav-tabs">
         {tabs.map((t) =>
@@ -279,4 +283,4 @@ function ConfusionMatrix({ matrix }) {
 
 }
 
-Object.assign(window, { Icon, BrandMark, TopBar, StatusBar, Sparkline, ToggleRow, RangeSlider, HBar, LineChart, ConfusionMatrix });
+Object.assign(window, { Icon, BrandMark, BrandLockup, TopBar, StatusBar, Sparkline, ToggleRow, RangeSlider, HBar, LineChart, ConfusionMatrix });

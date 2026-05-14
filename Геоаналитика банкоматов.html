@@ -77,6 +77,14 @@
     letter-spacing: 0.02em;
     white-space: nowrap;
     flex-shrink: 0;
+    height: 100%;
+    padding-right: 8px;
+    border-right: 1px solid var(--line);
+  }
+  .brand img {
+    height: 28px;
+    width: auto;
+    mix-blend-mode: screen;
   }
   .brand-mark {
     width: 22px; height: 22px;
@@ -339,18 +347,17 @@
   /* ─── Map ─── */
   .map-panel {
     position: relative;
-    background:
-      radial-gradient(circle at 50% 45%, #0d2440 0%, #07101e 75%);
+    background: #ecdfc8;
     border: 1px solid var(--line);
     border-radius: 6px;
     overflow: hidden;
   }
   .map-svg { width: 100%; height: 100%; display: block; }
-  .map-svg path.hex { transition: stroke 0.15s, stroke-width 0.15s; cursor: pointer; }
-  .map-svg path.hex:hover { stroke: var(--ink-0); stroke-width: 1.6; }
-  .map-svg path.hex.selected { stroke: var(--ink-0); stroke-width: 2.2; }
-  .map-svg path.hex.dimmed { opacity: 0.32; }
-  .map-svg path.hex.has-vtb { stroke: rgba(95,180,255,0.5); stroke-dasharray: 2 2; }
+  .map-svg path.hex { transition: stroke 0.15s, stroke-width 0.15s, fill-opacity 0.15s; cursor: pointer; }
+  .map-svg path.hex:hover { stroke: #0b1828; stroke-width: 1.6; }
+  .map-svg path.hex.selected { stroke: #0b1828; stroke-width: 2.4; }
+  .map-svg path.hex.dimmed { opacity: 0.18; }
+  .map-svg path.hex.has-vtb { stroke: rgba(11,24,40,0.55); stroke-dasharray: 2 2; }
 
   .map-overlay {
     position: absolute;
@@ -358,7 +365,15 @@
     color: var(--ink-2);
     font-size: 11px;
   }
-  .map-overlay.tl { top: 10px; left: 12px; }
+  .map-overlay.tl {
+    top: 10px; left: 12px;
+    background: rgba(11,24,40,0.85);
+    backdrop-filter: blur(8px);
+    border: 1px solid var(--line-2);
+    border-radius: 5px;
+    padding: 8px 12px;
+    color: var(--ink-0);
+  }
   .map-overlay.tr { top: 10px; right: 12px; text-align: right; }
   .map-overlay.bl { bottom: 14px; left: 12px; }
   .map-overlay.br { bottom: 14px; right: 12px; text-align: right; }

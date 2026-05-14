@@ -123,6 +123,9 @@ function genFactors(prng, hex) {
     { key: "cannibal",    label: "Каннибализация (свои АТМ)", sign: -1, weight: hex.vtbNear ? 0.14 + prng() * 0.06 : 0.01 },
     { key: "uni",         label: "Близость ВУЗа",       sign: +1, weight: hex.uniNear ? 0.08 + prng() * 0.04 : 0.0 },
     { key: "bc",          label: "Бизнес-центры",       sign: +1, weight: hex.bcNear ? 0.10 + prng() * 0.04 : 0.02 },
+    { key: "hardware",    label: "Строймагазины (наличка)", sign: +1, weight: hex.hardwareNear ? 0.12 + prng() * 0.04 : 0.0 },
+    { key: "park",        label: "Парки / достопримеч.",  sign: +1, weight: hex.parkNear ? 0.09 + prng() * 0.04 : 0.0 },
+    { key: "transit",     label: "Остановки НГПТ",        sign: +1, weight: hex.transitNear ? 0.07 + prng() * 0.04 : 0.0 },
   ];
   return all.sort((a, b) => Math.abs(b.weight) - Math.abs(a.weight));
 }
@@ -189,6 +192,37 @@ function generateData() {
   const unis = [];
   for (let i = 0; i < 10; i++) unis.push({ id: "u" + i, x: 60 + prng() * 760, y: 60 + prng() * 600 });
 
+  // Крупные строительные магазины (наличные расчёты при доставке)
+  const hardwares = [];
+  const hardwareNames = ["Леруа", "OBI", "Петрович", "СтройДвор", "Касторама", "Все Инструменты", "Бауцентр", "Стройландия"];
+  for (let i = 0; i < 14; i++) {
+    hardwares.push({
+      id: "hw" + i, name: hardwareNames[i % hardwareNames.length],
+      x: 70 + prng() * 740, y: 70 + prng() * 580,
+    });
+  }
+
+  // Парки / достопримечательности (туристический трафик, оплата за наличные)
+  const parks = [];
+  const parkNames = ["Парк Горького","Сокольники","Зарядье","ВДНХ","Воробьёвы горы","Коломенское","Музеон","Эрмитаж","Чистые пруды","Парк Победы","Кузьминки","Тверской бульвар"];
+  for (let i = 0; i < parkNames.length; i++) {
+    parks.push({
+      id: "pk" + i, name: parkNames[i],
+      x: 60 + prng() * 760, y: 60 + prng() * 600,
+      r: 28 + prng() * 18,
+    });
+  }
+
+  // Остановки наземного транспорта (автобус/троллейбус/трамвай) — точки с наличной оплатой
+  const transits = [];
+  for (let i = 0; i < 120; i++) {
+    transits.push({
+      id: "tr" + i,
+      kind: ["bus","tram","trol"][Math.floor(prng() * 3)],
+      x: 30 + prng() * 820, y: 30 + prng() * 660,
+    });
+  }
+
   // Hex grid
   const hexes = [];
   const rows = Math.ceil(MAP_H / ROW_STEP) + 1;
@@ -218,11 +252,17 @@ function generateData() {
       const competitorNear = near(competitors, 30);
       const bcNear = near(bcs, 45);
       const uniNear = near(unis, 50);
+      const hardwareNear = near(hardwares, 42);
+      const parkNear = parks.some(p => Math.hypot(p.x - x, p.y - y) < p.r);
+      const transitNear = transits.filter(t => Math.hypot(t.x - x, t.y - y) < 28).length >= 2;
 
       // штраф каннибализации
       if (vtbNear) score = Math.max(0.05, score - 0.18);
       // буст транспортный
       if (metroNear) score = Math.min(0.99, score + 0.08);
+      if (hardwareNear) score = Math.min(0.99, score + 0.05);
+      if (parkNear) score = Math.min(0.99, score + 0.04);
+      if (transitNear) score = Math.min(0.99, score + 0.03);
 
       // плотность населения, имитация
       const pop = Math.round(2000 + 8000 * Math.exp(-(Math.hypot(x - 440, y - 360)) / 280) + prng() * 1500);
@@ -240,6 +280,7 @@ function generateData() {
         pop,
         district: nearestDistrict(x, y),
         metroNear, mallNear, vtbNear, competitorNear, bcNear, uniNear,
+        hardwareNear, parkNear, transitNear,
       };
       hex.mcc = genMCC(prng, score);
       hex.factors = genFactors(prng, hex);
@@ -249,6 +290,7 @@ function generateData() {
 
   return {
     hexes, metro, malls, vtbAtms, competitors, bcs, unis,
+    hardwares, parks, transits,
     rings: RINGS, roads: ROADS, riverPath: RIVER_PATH, districts: DISTRICTS,
     geom: { HEX_R, HEX_W, HEX_H, MAP_W, MAP_H }
   };
