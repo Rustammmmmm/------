@@ -65,70 +65,87 @@ function MapBase({ showLabels = true, showBlockNumbers = true }) {
   return (
     <g>
       <defs>
-        <pattern id="city-blocks" width="48" height="48" patternUnits="userSpaceOnUse">
-          <rect width="48" height="48" fill="#f1e6cf"/>
-          <rect x="1.5"  y="1.5"  width="18" height="14" fill="#e2d3b1" rx="0.4"/>
-          <rect x="22"   y="1.5"  width="24.5" height="11" fill="#e6d8b9" rx="0.4"/>
-          <rect x="1.5"  y="18"   width="14" height="18" fill="#dfcfac" rx="0.4"/>
-          <rect x="18"   y="16"   width="11" height="12" fill="#e4d5b6" rx="0.4"/>
-          <rect x="31"   y="16"   width="15.5" height="10" fill="#e0d0ae" rx="0.4"/>
-          <rect x="18"   y="30"   width="28.5" height="16" fill="#e3d2b1" rx="0.4"/>
-          <rect x="1.5"  y="39"   width="14" height="7.5" fill="#e7d8bb" rx="0.4"/>
+        {/* Тёмный «night-mode» паттерн застройки: едва различимые кварталы поверх navy */}
+        <pattern id="city-blocks-dark" width="56" height="56" patternUnits="userSpaceOnUse">
+          <rect width="56" height="56" fill="#0a1c38"/>
+          <rect x="2"  y="2"  width="22" height="16" fill="#0e2548" rx="0.6"/>
+          <rect x="26" y="2"  width="28" height="13" fill="#0c1f3e" rx="0.6"/>
+          <rect x="2"  y="20" width="16" height="22" fill="#0f2950" rx="0.6"/>
+          <rect x="20" y="18" width="13" height="14" fill="#0b1d3a" rx="0.6"/>
+          <rect x="36" y="18" width="18" height="12" fill="#0d2444" rx="0.6"/>
+          <rect x="20" y="34" width="34" height="20" fill="#0c2142" rx="0.6"/>
+          <rect x="2"  y="46" width="16" height="8"  fill="#0e2748" rx="0.6"/>
+        </pattern>
+
+        <radialGradient id="map-vignette-cyan" cx="50%" cy="42%" r="62%">
+          <stop offset="0%"   stopColor="rgba(0,170,255,0.10)"/>
+          <stop offset="55%"  stopColor="rgba(0,170,255,0.02)"/>
+          <stop offset="100%" stopColor="rgba(0,0,0,0.55)"/>
+        </radialGradient>
+
+        {/* Лёгкая «карта-сетка» поверх застройки — как Mapbox Dark */}
+        <pattern id="micro-grid" width="14" height="14" patternUnits="userSpaceOnUse">
+          <path d="M 14 0 L 0 0 0 14" fill="none" stroke="rgba(135,170,210,0.045)" strokeWidth="0.5"/>
         </pattern>
       </defs>
 
       {/* Основа */}
-      <rect width={MAP_W} height={MAP_H} fill="#f4ead4"/>
-      <rect width={MAP_W} height={MAP_H} fill="url(#city-blocks)"/>
+      <rect width={MAP_W} height={MAP_H} fill="#06122a"/>
+      <rect width={MAP_W} height={MAP_H} fill="url(#city-blocks-dark)"/>
+      <rect width={MAP_W} height={MAP_H} fill="url(#micro-grid)"/>
 
-      {/* Второстепенные улицы (тонкая сеть) */}
+      {/* Второстепенные улицы — тонкие холодные линии */}
       <g pointerEvents="none">
         {sideStreets.map((d, i) => (
-          <path key={i} d={d} fill="none" stroke="#fbf6ec" strokeWidth="2.2" strokeOpacity="0.85"/>
+          <path key={i} d={d} fill="none" stroke="rgba(160,190,220,0.07)" strokeWidth="1.2"/>
         ))}
       </g>
 
-      {/* Парки */}
+      {/* Парки — приглушённый тёмно-зелёный */}
       <g pointerEvents="none">
         {parks.map(p => (
           <g key={p.id}>
-            <circle cx={p.x} cy={p.y} r={p.r} fill="#c8df9e" stroke="#a4c47a" strokeWidth="0.8" opacity="0.95"/>
+            <circle cx={p.x} cy={p.y} r={p.r} fill="rgba(80,150,90,0.16)" stroke="rgba(130,200,120,0.32)" strokeWidth="0.7"/>
           </g>
         ))}
       </g>
 
-      {/* Кольца (Бульварное / Садовое / ТТК / МКАД) */}
+      {/* Кольца (Бульварное / Садовое / ТТК / МКАД) — тёплые «городские артерии» */}
       {rings.map((r, i) => (
         <g key={"r-"+i}>
           <ellipse cx={r.cx} cy={r.cy} rx={r.rx} ry={r.ry}
-            fill="none" stroke="#c9b78d"
-            strokeWidth={i === rings.length - 1 ? 7 : (i === 0 ? 4.5 : 5.5)}
-            strokeOpacity="0.6" pointerEvents="none"/>
+            fill="none" stroke="rgba(255,180,90,0.10)"
+            strokeWidth={i === rings.length - 1 ? 7 : (i === 0 ? 5 : 6)}
+            pointerEvents="none"/>
           <ellipse cx={r.cx} cy={r.cy} rx={r.rx} ry={r.ry}
-            fill="none" stroke="#ffffff"
-            strokeWidth={i === rings.length - 1 ? 5.5 : (i === 0 ? 2.8 : 3.8)} pointerEvents="none"/>
+            fill="none" stroke="rgba(255,215,150,0.55)"
+            strokeWidth={i === rings.length - 1 ? 2 : (i === 0 ? 1.2 : 1.5)}
+            pointerEvents="none"/>
         </g>
       ))}
 
       {/* Радиальные магистрали */}
       {roads.map((d, i) => (
         <g key={"rd-"+i} pointerEvents="none">
-          <path d={d} fill="none" stroke="#c9b78d" strokeWidth="7.5" strokeOpacity="0.65"/>
-          <path d={d} fill="none" stroke="#ffffff" strokeWidth="5.8"/>
+          <path d={d} fill="none" stroke="rgba(255,180,90,0.10)" strokeWidth="5"/>
+          <path d={d} fill="none" stroke="rgba(255,215,150,0.55)" strokeWidth="1.4"/>
         </g>
       ))}
 
-      {/* Москва-река */}
-      <path d={riverPath} fill="none" stroke="#a8d0e6" strokeWidth="18" strokeLinecap="round" pointerEvents="none"/>
-      <path d={riverPath} fill="none" stroke="#7ab8d8" strokeWidth="14" strokeLinecap="round" pointerEvents="none"/>
-      <path d={riverPath} fill="none" stroke="#c8e2f0" strokeWidth="2" strokeLinecap="round" opacity="0.7" pointerEvents="none"/>
+      {/* Москва-река — глубокий cyan */}
+      <path d={riverPath} fill="none" stroke="#0d2e4a" strokeWidth="18" strokeLinecap="round" pointerEvents="none"/>
+      <path d={riverPath} fill="none" stroke="#114a72" strokeWidth="14" strokeLinecap="round" pointerEvents="none"/>
+      <path d={riverPath} fill="none" stroke="rgba(0,170,255,0.32)" strokeWidth="1.6" strokeLinecap="round" pointerEvents="none"/>
+
+      {/* Виньетка для фокуса в центр */}
+      <rect width={MAP_W} height={MAP_H} fill="url(#map-vignette-cyan)" pointerEvents="none"/>
 
       {/* Названия улиц вдоль магистралей */}
       {showLabels && streetLabels.map((s, i) => (
         <text key={i} x={s.x} y={s.y}
           fontSize="8.5" fontFamily="Inter" fontWeight="500"
-          fill="rgba(50,40,20,0.65)"
-          stroke="#fbf6ec" strokeWidth="2.2" paintOrder="stroke"
+          fill="rgba(200,220,240,0.55)"
+          stroke="rgba(6,18,42,0.9)" strokeWidth="2.4" paintOrder="stroke"
           textAnchor="middle"
           pointerEvents="none"
           transform={`rotate(${s.angle} ${s.x} ${s.y})`}>
@@ -140,7 +157,7 @@ function MapBase({ showLabels = true, showBlockNumbers = true }) {
       {showBlockNumbers && quartals.map((q, i) => (
         <text key={i} x={q.x} y={q.y}
           fontSize="7.5" fontFamily="Inter" fontWeight="400"
-          fill="rgba(80,65,38,0.4)" textAnchor="middle"
+          fill="rgba(180,200,230,0.28)" textAnchor="middle"
           pointerEvents="none">
           {q.n} квартал
         </text>
@@ -184,22 +201,36 @@ function MapCanvas({ hexes, filters, selected, onSelect, geom, baseLayers, hover
 
   return (
     <svg className="map-svg" viewBox={`0 0 ${MAP_W} ${MAP_H}`} preserveAspectRatio="xMidYMid meet">
+      <defs>
+        <filter id="hex-selected-glow" x="-50%" y="-50%" width="200%" height="200%">
+          <feGaussianBlur in="SourceGraphic" stdDeviation="2.6" result="b"/>
+          <feMerge>
+            <feMergeNode in="b"/>
+            <feMergeNode in="SourceGraphic"/>
+          </feMerge>
+        </filter>
+      </defs>
       <MapBase/>
-      {/* HEX-сетка (полупрозрачная) */}
+      {/* HEX-сетка (тепловая карта поверх navy-карты) */}
       <g>
         {hexes.map(h => {
           const visible = filters.passVisibility(h);
           const isSelected = selected === h.id;
           const isHovered = hovered === h.id;
-          const baseAlpha = pinMode ? 0.32 : 0.55;
-          const dimAlpha = pinMode ? 0.08 : 0.18;
+          const baseAlpha = pinMode ? 0.42 : 0.78;
+          const dimAlpha = pinMode ? 0.06 : 0.12;
           return (
             <polygon
               key={h.id}
-              points={hexPath(h.cx, h.cy, HEX_R - 1)}
+              points={hexPath(h.cx, h.cy, HEX_R - 0.6)}
               fill={visible ? scoreColor(h.score, baseAlpha) : scoreColor(h.score, dimAlpha)}
-              stroke={isSelected ? "#0b1828" : (visible ? "rgba(11,24,40,0.18)" : "rgba(11,24,40,0.06)")}
-              strokeWidth={isSelected ? 2.4 : (isHovered ? 1.6 : 0.5)}
+              stroke={isSelected
+                ? "#00AAFF"
+                : (isHovered
+                  ? "rgba(255,255,255,0.85)"
+                  : (visible ? "rgba(255,255,255,0.16)" : "rgba(255,255,255,0.04)"))}
+              strokeWidth={isSelected ? 2.4 : (isHovered ? 1.4 : 0.6)}
+              filter={isSelected ? "url(#hex-selected-glow)" : undefined}
               className={`hex ${isSelected ? "selected" : ""} ${visible ? "" : "dimmed"} ${h.vtbNear ? "has-vtb" : ""}`}
               onClick={() => onSelect(h.id)}
               onMouseEnter={() => setHovered(h.id)}
@@ -279,8 +310,8 @@ function MapCanvas({ hexes, filters, selected, onSelect, geom, baseLayers, hover
       {districts.slice(0, 14).map(d => (
         <text key={d.name} x={d.cx} y={d.cy}
           fontSize="9.5" fontFamily="Inter" fontWeight="600"
-          fill="rgba(40,30,15,0.72)"
-          stroke="rgba(255,250,235,0.85)" strokeWidth="2.4" paintOrder="stroke"
+          fill="rgba(220,235,255,0.72)"
+          stroke="rgba(6,18,42,0.92)" strokeWidth="2.4" paintOrder="stroke"
           textAnchor="middle"
           pointerEvents="none"
           letterSpacing="0.06em">

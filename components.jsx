@@ -49,8 +49,8 @@ function BrandMark({ size = 28 }) {
       src="assets/hh-mark.png"
       alt="хайпхаус"
       width={size} height={size}
-      style={{ display: "block", objectFit: "contain", filter: "drop-shadow(0 0 6px rgba(95,180,255,0.25))" }}
-    />);
+      style={{ display: "block", objectFit: "contain", filter: "drop-shadow(0 0 6px rgba(95,180,255,0.25))" }} />);
+
 
 }
 
@@ -59,8 +59,8 @@ function BrandLockup({ height = 30 }) {
     <img
       src="assets/hh-lockup.png"
       alt="хайпхаус"
-      style={{ height, display: "block", objectFit: "contain" }}
-    />);
+      style={{ height, display: "block", objectFit: "contain" }} />);
+
 
 }
 
@@ -90,12 +90,12 @@ function TopBar({ tab, setTab }) {
         )}
       </div>
       <div className="topbar-right">
-        <span className="pill"><span className="dot"></span>Модель обновлена 12.05.2026</span>
+        <span className="pill"><span className="dot"></span>Модель обновлена 15.05.2026</span>
         <button className="btn btn-ghost" title="Экспорт"><Icon.download /></button>
-        <div className="avatar">АК</div>
+        <div className="avatar">
+</div>
       </div>
     </div>);
-
 }
 
 // ─── Status bar ────────────────────────────────────────────────────────
@@ -115,7 +115,7 @@ function StatusBar({ visibleCount, totalCount, selected }) {
 }
 
 // ─── Sparkline ─────────────────────────────────────────────────────────
-function Sparkline({ values, w = 70, h = 28, color = "#2ad4c4", fill = true }) {
+function Sparkline({ values, w = 70, h = 28, color = "#00AAFF", fill = true }) {
   if (!values || !values.length) return null;
   const max = Math.max(...values),min = Math.min(...values);
   const norm = (v) => max === min ? 0.5 : (v - min) / (max - min);
@@ -176,7 +176,7 @@ function RangeSlider({ value, onChange, min = 0, max = 100, format = (v) => v, l
 }
 
 // ─── Bar chart (horizontal, for feature importance) ────────────────────
-function HBar({ items, max, color = "#2ad4c4", height = 18, format }) {
+function HBar({ items, max, color = "#00AAFF", height = 18, format }) {
   const m = max ?? Math.max(...items.map((i) => Math.abs(i.value)));
   return (
     <div style={{ display: "grid", gap: 4 }}>
@@ -237,8 +237,8 @@ function LineChart({ data, w = 360, h = 240, xLabel, yLabel, refLine }) {
       <line x1={px(0)} y1={py(0)} x2={px(1)} y2={py(1)} stroke="#5d738f" strokeDasharray="3 4" strokeWidth="1" />
       }
       {/* curve */}
-      <path d={fillPath} fill="#2ad4c4" opacity="0.12" />
-      <path d={path} fill="none" stroke="#2ad4c4" strokeWidth="2" />
+      <path d={fillPath} fill="#00AAFF" opacity="0.12" />
+      <path d={path} fill="none" stroke="#00AAFF" strokeWidth="2" />
     </svg>);
 
 }
@@ -264,8 +264,8 @@ function ConfusionMatrix({ matrix }) {
             const intensity = v / max;
             return (
               <div key={ci} style={{
-                background: isCorrect ? `rgba(42,212,196,${0.1 + intensity * 0.45})` : `rgba(255,106,90,${0.1 + intensity * 0.45})`,
-                border: `1px solid ${isCorrect ? "rgba(42,212,196,0.5)" : "rgba(255,106,90,0.5)"}`,
+                background: isCorrect ? `rgba(0,170,255,${0.1 + intensity * 0.45})` : `rgba(255,106,90,${0.1 + intensity * 0.45})`,
+                border: `1px solid ${isCorrect ? "rgba(0,170,255,0.5)" : "rgba(255,106,90,0.5)"}`,
                 borderRadius: 4,
                 padding: "14px 8px",
                 textAlign: "center"

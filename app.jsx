@@ -143,13 +143,13 @@ function DetailView({ selected, setSelected, setTab }) {
             <div className="panel-body">
               <div style={{ display: "flex", height: 22, borderRadius: 4, overflow: "hidden", background: "var(--bg-2)" }}>
                 {mccEntries.map(([k, v], i) => {
-                  const colors = ["#2ad4c4", "#7dd3fc", "#a3e635", "#ffd166", "#ffb454", "#c084fc", "#ff7a91", "#5d738f"];
+                  const colors = ["#00AAFF", "#7dd3fc", "#a3e635", "#ffd166", "#ffb454", "#c084fc", "#ff7a91", "#5d738f"];
                   return <div key={k} style={{ width: (v * 100) + "%", background: colors[i % colors.length] }} title={`${k} ${(v*100).toFixed(1)}%`}/>
                 })}
               </div>
               <div style={{ marginTop: 10, display: "grid", gridTemplateColumns: "1fr 1fr", gap: 4 }}>
                 {mccEntries.map(([k, v], i) => {
-                  const colors = ["#2ad4c4", "#7dd3fc", "#a3e635", "#ffd166", "#ffb454", "#c084fc", "#ff7a91", "#5d738f"];
+                  const colors = ["#00AAFF", "#7dd3fc", "#a3e635", "#ffd166", "#ffb454", "#c084fc", "#ff7a91", "#5d738f"];
                   return (
                     <div key={k} style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 11, color: "var(--ink-1)" }}>
                       <span className="swatch round" style={{ background: colors[i % colors.length] }}/>
@@ -174,7 +174,7 @@ function DetailView({ selected, setSelected, setTab }) {
                 <polygon key={h.id}
                   points={hexPath(h.cx, h.cy, geom.HEX_R - 1)}
                   fill={scoreColor(h.score, h.id === hex.id ? 0.55 : 0.35)}
-                  stroke={h.id === hex.id ? "#0b1828" : "rgba(11,24,40,0.12)"}
+                  stroke={h.id === hex.id ? "#071A33" : "rgba(7,26,51,0.12)"}
                   strokeWidth={h.id === hex.id ? 2.6 : 0.5}
                 />
               ))}
@@ -233,7 +233,7 @@ function DetailView({ selected, setSelected, setTab }) {
             </svg>
             <div style={{
               position: "absolute", left: 10, top: 10,
-              background: "rgba(11,24,40,0.85)", color: "var(--ink-0)",
+              background: "rgba(7,26,51,0.85)", color: "var(--ink-0)",
               padding: "6px 10px", borderRadius: 5, fontSize: 10.5,
               letterSpacing: "0.06em", textTransform: "uppercase",
               border: "1px solid var(--line-2)"
@@ -422,7 +422,7 @@ function MetricsView() {
           <div className="val">0.823</div>
           <div className="delta">▲ +0.013 за месяц</div>
           <div className="target">target ≥ 0.75 · ✓</div>
-          <div className="spark"><Sparkline values={monthsSparkAUC} color="#2ad4c4"/></div>
+          <div className="spark"><Sparkline values={monthsSparkAUC} color="#00AAFF"/></div>
         </div>
         <div className="kpi">
           <div className="lbl">Precision @ top-20</div>

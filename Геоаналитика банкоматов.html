@@ -6,19 +6,19 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
 <style>
   :root {
-    --bg-0: #07101e;
-    --bg-1: #0b1828;
-    --bg-2: #11223a;
-    --bg-3: #16304f;
-    --line: #1d3a5e;
-    --line-2: #25496e;
+    --bg-0: #000D21;
+    --bg-1: #071A33;
+    --bg-2: #0E2548;
+    --bg-3: #143366;
+    --line: #1B3F73;
+    --line-2: #264F8C;
     --ink-0: #f4f8ff;
     --ink-1: #cfdcee;
     --ink-2: #8ea2bf;
     --ink-3: #5d738f;
-    --teal: #2ad4c4;
-    --teal-dim: #1aa495;
-    --teal-soft: rgba(42,212,196,0.14);
+    --teal: #00AAFF;
+    --teal-dim: #0080CC;
+    --teal-soft: rgba(0,170,255,0.14);
     --amber: #ffb454;
     --red: #ff6a5a;
     --green: #58d68d;
@@ -57,7 +57,7 @@
     grid-template-rows: 52px 1fr 22px;
     height: 100vh;
     background:
-      radial-gradient(ellipse 80% 50% at 50% -10%, rgba(42,212,196,0.06), transparent 60%),
+      radial-gradient(ellipse 80% 50% at 50% -10%, rgba(0,170,255,0.06), transparent 60%),
       linear-gradient(180deg, var(--bg-0), var(--bg-0));
   }
 
@@ -157,7 +157,7 @@
   .avatar {
     width: 26px; height: 26px;
     border-radius: 100px;
-    background: linear-gradient(135deg, #1f6f95, #2ad4c4);
+    background: linear-gradient(135deg, #1f6f95, #00AAFF);
     display: grid; place-items: center;
     color: var(--bg-0);
     font-weight: 700;
@@ -320,7 +320,7 @@
     border-color: var(--teal);
     font-weight: 600;
   }
-  .btn-primary:hover { background: #5ee2d4; }
+  .btn-primary:hover { background: #33BBFF; }
   .btn-ghost { background: transparent; }
   .btn-block { width: 100%; }
 
@@ -347,17 +347,15 @@
   /* ─── Map ─── */
   .map-panel {
     position: relative;
-    background: #ecdfc8;
+    background: #06122a;
     border: 1px solid var(--line);
     border-radius: 6px;
     overflow: hidden;
+    box-shadow: inset 0 0 0 1px rgba(0,170,255,0.04);
   }
   .map-svg { width: 100%; height: 100%; display: block; }
-  .map-svg path.hex { transition: stroke 0.15s, stroke-width 0.15s, fill-opacity 0.15s; cursor: pointer; }
-  .map-svg path.hex:hover { stroke: #0b1828; stroke-width: 1.6; }
-  .map-svg path.hex.selected { stroke: #0b1828; stroke-width: 2.4; }
-  .map-svg path.hex.dimmed { opacity: 0.18; }
-  .map-svg path.hex.has-vtb { stroke: rgba(11,24,40,0.55); stroke-dasharray: 2 2; }
+  .map-svg .hex { transition: stroke 0.15s, stroke-width 0.15s, fill-opacity 0.15s; cursor: pointer; }
+  .map-svg .hex.has-vtb { stroke-dasharray: 2 2; }
 
   .map-overlay {
     position: absolute;
@@ -367,7 +365,7 @@
   }
   .map-overlay.tl {
     top: 10px; left: 12px;
-    background: rgba(11,24,40,0.85);
+    background: rgba(7,26,51,0.85);
     backdrop-filter: blur(8px);
     border: 1px solid var(--line-2);
     border-radius: 5px;
@@ -387,7 +385,7 @@
   }
   .map-btn {
     width: 30px; height: 30px;
-    background: rgba(11,24,40,0.85);
+    background: rgba(7,26,51,0.85);
     backdrop-filter: blur(8px);
     border: 1px solid var(--line);
     border-radius: 5px;
@@ -401,7 +399,7 @@
   .legend {
     position: absolute;
     left: 12px; bottom: 14px;
-    background: rgba(11,24,40,0.78);
+    background: rgba(7,26,51,0.78);
     backdrop-filter: blur(8px);
     border: 1px solid var(--line);
     border-radius: 5px;
@@ -691,7 +689,7 @@
   .map-tip {
     position: absolute;
     pointer-events: none;
-    background: rgba(7,16,30,0.95);
+    background: rgba(0,13,33,0.95);
     border: 1px solid var(--line-2);
     border-radius: 5px;
     padding: 8px 10px;
